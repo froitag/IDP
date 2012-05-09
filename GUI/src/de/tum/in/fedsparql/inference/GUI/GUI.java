@@ -12,7 +12,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.SpringLayout;
 import javax.swing.JButton;
 
