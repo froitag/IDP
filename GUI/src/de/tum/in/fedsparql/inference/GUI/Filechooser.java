@@ -3,6 +3,7 @@ package de.tum.in.fedsparql.inference.GUI;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -21,6 +22,13 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.core.databinding.beans.PojoObservables;
+import org.eclipse.swt.widgets.List;
+
+import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
+import de.tum.in.fedsparql.inference.dummy.JenaIO;
+import de.tum.in.fedsparql.inference.io.Database;
+import de.tum.in.fedsparql.rts.executor.FSException;
+import de.tum.in.fedsparql.rts.executor.FSResultSet;
 
 public class Filechooser {
 	private DataBindingContext m_bindingContext;
@@ -28,8 +36,8 @@ public class Filechooser {
 	protected Shell shell;
 	private Text text;
 	private Text text_1;
-	private Text text_2;
 	private String text1Content="test";
+	private List list;
 
 	/**
 	 * Open the window.
@@ -52,7 +60,7 @@ public class Filechooser {
 	 */
 	protected void createContents() {
 		shell = new Shell(SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.RESIZE);
-		shell.setSize(363, 300);
+		shell.setSize(400, 302);
 		shell.setText("SWT Application");
 		shell.setLayout(null);
 		
@@ -69,53 +77,77 @@ public class Filechooser {
 		lblPreview.setText("Preview:");
 		
 		text = new Text(shell, SWT.BORDER);
-		text.setBounds(71, 10, 200, 21);
+		text.setBounds(71, 10, 237, 21);
 		
 		text_1 = new Text(shell, SWT.BORDER);
-		text_1.setBounds(71, 34, 200, 21);
-		
-		text_2 = new Text(shell, SWT.BORDER);
-		text_2.setBounds(71, 78, 266, 174);
+		text_1.setBounds(71, 34, 237, 21);
 		
 		Button btnNewButton = new Button(shell, SWT.NONE);
-		final JFrame frame = new JFrame("JFileChooser Popup");
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-	    JFileChooser fileChooser = new JFileChooser(".");
-	    frame.add(fileChooser, BorderLayout.CENTER);
-
-	    ActionListener actionListener = new ActionListener() {
-	      public void actionPerformed(ActionEvent actionEvent) {
-	        JFileChooser theFileChooser = (JFileChooser) actionEvent.getSource();
-	        String command = actionEvent.getActionCommand();
-	        if (command.equals(JFileChooser.APPROVE_SELECTION)) {
-	          File selectedFile = theFileChooser.getSelectedFile();
-	          text1Content = selectedFile.getAbsolutePath();
-	        } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
-	          System.out.println(JFileChooser.CANCEL_SELECTION);
-	        }
-	      }
-	    };
-	    fileChooser.addActionListener(actionListener);
-	    frame.pack();
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-			    frame.setVisible(true);
+				
+			    try {
+			    	JFileChooser fileChooser = new JFileChooser(".");
+				    int result = fileChooser.showOpenDialog(fileChooser);
+				    String path = "";
+				    if (result == JFileChooser.APPROVE_OPTION) {
+				    	File file = fileChooser.getSelectedFile();
+				    	path = file.getAbsolutePath();
+				    	text_1.setText(path);
+				    }
+				    JenaIO io = new JenaIO();
+					Database db = new JenaDatabase("", path);
+					FSResultSet rs;
+					try {
+						rs = io.execute("SELECT ?s ?p ?o WHERE {?s ?p ?o.}", db);
+						//System.out.println(Arrays.toString(rs.getHeader()));
+						while (rs.hasNext()){
+							String[] tuple = rs.next();
+							
+							String triple = tuple[rs.column("s")]+" | "+ tuple[rs.column("p")]+" | "+ tuple[rs.column("o")];
+							list.add(triple);
+						}
+						rs.close();
+					} catch (FSException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			    
 			}
 		});
-		btnNewButton.setBounds(277, 32, 60, 25);
+		btnNewButton.setBounds(314, 32, 60, 25);
 		btnNewButton.setText("Select");
-		m_bindingContext = initDataBindings();
+		
+		list = new List(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		list.setBounds(10, 102, 364, 117);
+		
+		Button btnNewButton_1 = new Button(shell, SWT.NONE);
+		btnNewButton_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//...
+				firstsite.addDatabase(text.getText(), text_1.getText());
+				shell.close();
+			}
+		});
+		btnNewButton_1.setBounds(10, 229, 75, 25);
+		btnNewButton_1.setText("OK");
+		
+		Button btnNewButton_2 = new Button(shell, SWT.NONE);
+		btnNewButton_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shell.close();
+			}
+		});
+		btnNewButton_2.setBounds(299, 229, 75, 25);
+		btnNewButton_2.setText("Cancel");
 
 	}
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		IObservableValue text_1ObserveTextObserveWidget_1 = SWTObservables.observeText(text_1, SWT.Modify);
-		IObservableValue text1ContentEmptyObserveValue = PojoObservables.observeValue(text1Content, "empty");
-		bindingContext.bindValue(text_1ObserveTextObserveWidget_1, text1ContentEmptyObserveValue, null, null);
-		//
-		return bindingContext;
-	}
+
 }

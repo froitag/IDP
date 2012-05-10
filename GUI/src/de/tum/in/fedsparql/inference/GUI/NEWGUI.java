@@ -16,12 +16,20 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.wb.swt.SWTResourceManager;
 import swing2swt.layout.BorderLayout;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.internal.handlers.WizardHandler.New;
+
+import de.tum.in.fedsparql.inference.dummy.JenaIO;
+import de.tum.in.fedsparql.inference.framework.InferenceIO;
 
 public class NEWGUI extends ApplicationWindow {
 	private static Composite container;
 	private static firstsite firstsite;
 	private static secondsite secondsite;
 	private static thirdsite thirdsite;
+	private static StatusLineManager statusLineManager;
+	private static String saved_statusBar;
+	public static InferenceIO inferenceIO = new InferenceIO(new JenaIO());
 	
 	/**
 	 * Create the application window.
@@ -31,7 +39,17 @@ public class NEWGUI extends ApplicationWindow {
 		createActions();
 		//addToolBar(SWT.FLAT | SWT.WRAP);
 		//addMenuBar();
-		//addStatusLine();
+		addStatusLine();
+	}
+	
+	/**
+	 * Create the status line manager.
+	 * @return the status line manager
+	 */
+	@Override
+	protected StatusLineManager createStatusLineManager() {
+		statusLineManager = new StatusLineManager();
+		return statusLineManager;
 	}
 	
 	public static void goToSecondSite() {
@@ -57,7 +75,20 @@ public class NEWGUI extends ApplicationWindow {
 		thirdsite.setVisible(false);
 		secondsite.setVisible(true);
 	}
-
+	
+	public static void setStatusBar(String message) {
+		saved_statusBar = message;
+		statusLineManager.setMessage(message);
+	}
+	
+	public static void temporaryStatusBar(String temp_string) {
+		statusLineManager.setMessage(temp_string);
+	}
+	
+	public static void undoStatusBar() {
+		statusLineManager.setMessage(saved_statusBar);
+	}
+	
 	/**
 	 * Create contents of the application window.
 	 * @param parent
@@ -69,6 +100,9 @@ public class NEWGUI extends ApplicationWindow {
 		
 		firstsite = new firstsite(container, SWT.NONE);
 		firstsite.setForeground(SWTResourceManager.getColor(0, 0, 0));
+		
+		Label label = new Label(container, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label.setLayoutData(BorderLayout.SOUTH);
 		
 		//composite = new Composite(container, SWT.NONE);
 		//composite.setForeground(SWTResourceManager.getColor(0, 0, 0));
@@ -108,7 +142,7 @@ public class NEWGUI extends ApplicationWindow {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("New Application");
+		newShell.setText("RDF Inferences");
 	}
 
 	/**
@@ -116,6 +150,6 @@ public class NEWGUI extends ApplicationWindow {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(466, 346);
+		return new Point(466, 315);
 	}
 }
