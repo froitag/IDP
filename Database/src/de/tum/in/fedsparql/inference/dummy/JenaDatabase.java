@@ -21,14 +21,14 @@ import de.tum.in.fedsparql.inference.io.Database;
 public class JenaDatabase implements Database {
 
 	private static int ID = 0;
-	
+
 	/** The name of this database*/
 	private String name = null;
-	
+
 	/** The database*/
 	private Model model = null;
 
-	/** 
+	/**
 	 * Creates a new jena (empty) database with default name
 	 * @param name
 	 */
@@ -36,8 +36,8 @@ public class JenaDatabase implements Database {
 		this.name = "GENERATED"+ID++;
 		this.model = ModelFactory.createDefaultModel();
 	}
-	
-	/** 
+
+	/**
 	 * Creates a new jena (empty) database
 	 * @param name
 	 */
@@ -46,19 +46,19 @@ public class JenaDatabase implements Database {
 		this.model = ModelFactory.createDefaultModel();
 	}
 
-	/** 
+	/**
 	 * Creates a new jena database containing the triples
 	 * from the given file. RDF format must be "N-Triples"
 	 * @param name
 	 * @param file
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	public JenaDatabase(String name, String file) throws FileNotFoundException{
 		this.name = name;
 		this.model = ModelFactory.createDefaultModel();
 		this.model.read(new FileInputStream(new File(file)), null, FileUtils.langNTriple);
 	}
-	
+
 	/**
 	 * Returns the model
 	 * @return
@@ -66,7 +66,7 @@ public class JenaDatabase implements Database {
 	public Model getModel(){
 		return this.model;
 	}
-	
+
 	@Override
 	public void drop() {
 		this.model.removeAll();
@@ -94,10 +94,10 @@ public class JenaDatabase implements Database {
 	 * @param object
 	 */
 	public void write(String subject, String predicate, String object) {
-		
+
 		Resource s = model.createResource(subject.substring(1, subject.length()-1));
 		Property p = model.createProperty(predicate.substring(1, predicate.length()-1));
-		
+
 		if (object.startsWith("<")){
 			Resource o = model.createResource(object.substring(1, object.length()-1));
 			model.add(model.createStatement(s, p, o));
