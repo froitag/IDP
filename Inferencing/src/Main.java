@@ -5,6 +5,7 @@ import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.dummy.JenaIO;
 import de.tum.in.fedsparql.inference.framework.GUIDTranslation;
 import de.tum.in.fedsparql.inference.framework.InferenceIO;
+import de.tum.in.fedsparql.inference.framework.NormalisationScript;
 import de.tum.in.fedsparql.rts.executor.FSException;
 import de.tum.in.fedsparql.rts.executor.FSResultSet;
 
@@ -25,6 +26,11 @@ public class Main {
 			InferenceIO io = new InferenceIO(new JenaIO());
 			io.addDatabase(new JenaDatabase("Test1", "database/test2.nt"));
 			io.addDatabase(new JenaDatabase("Test2", "database/test3.nt"));
+
+
+			// add value normalisations
+			NormalisationScript s = new NormalisationScript("test","Test2", "<http://example.org#vorname>", "var x = $val.substring(1,$val.length-1).split(' '); return '\"'+x[0]+'\"';");
+			io.addNormalisationScript(s);
 
 			// add GUID translations
 			GUIDTranslation t = new GUIDTranslation("Test2");
