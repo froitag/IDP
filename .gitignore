@@ -1,11 +1,7 @@
-
-/GUI/.classpath
-/.metadata
+**/.settings
+**/.classpath
+**/.project
+**/.metadata
 /Database/bin
 /GUI/bin
 /Inferencing/bin
-/Database/bin
-/Database/bin
-/GUI/bin
-/Inferencing/bin
-/Inferencing/.settings
