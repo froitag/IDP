@@ -63,11 +63,11 @@ public class Main2 {
 			System.out.println();
 			scripts.printInheritedDependencies();
 			System.out.println();
-			scripts.printIndependentlyProcessableScripts();
+			//			scripts.printIndependentlyProcessableScripts();
 			System.out.println();
 
 			// create environment
-			ExecutionEnvironment env = new ExecutionEnvironment(new String[]{"a","b"});
+			ExecutionEnvironment env = new ExecutionEnvironment(new String[]{"a","b","c"});
 
 			// create schedule
 			ScriptScheduler scheduler = new SimpleScriptScheduler(env);

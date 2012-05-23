@@ -1,6 +1,5 @@
 package de.tum.in.fedsparql.inference.framework;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -147,48 +146,48 @@ public class ScriptCollection {
 
 		return dependencies;
 	}
+	//	/**
+	//	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
+	//	 * all possible combinations are returned.
+	//	 */
+	//	public Set<Set<Script>> getIndependencies() {
+	//		Set<Set<Script>> ret = new HashSet<Set<Script>>();
+	//
+	//		for (Set<Script> set: _independentlyProcessableScripts) {
+	//			Set<Script> newSet = new HashSet<Script>();
+	//
+	//			for (Script script: set) {
+	//				newSet.add(new Script(script));
+	//			}
+	//
+	//			ret.add(newSet);
+	//		}
+	//
+	//		return ret;
+	//	}
+	//	/**
+	//	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
+	//	 * all possible combinations that involve the given script are returned.
+	//	 */
+	//	public Set<Set<Script>> getIndependencies(Script script) {
+	//		if (!_scripts.contains(script)) return null;
+	//
+	//		Set<Set<Script>> ret = new HashSet<Set<Script>>();
+	//
+	//		for (Set<Script> set: _independentlyProcessableScripts) {
+	//			if (!set.contains(script)) continue;
+	//
+	//			Set<Script> newSet = new HashSet<Script>();
+	//			for (Script s: set) {
+	//				newSet.add(new Script(s));
+	//			}
+	//			ret.add(newSet);
+	//		}
+	//
+	//		return ret;
+	//	}
 	/**
-	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
-	 * all possible combinations are returned.
-	 */
-	public Set<Set<Script>> getIndependencies() {
-		Set<Set<Script>> ret = new HashSet<Set<Script>>();
-
-		for (Set<Script> set: _independentlyProcessableScripts) {
-			Set<Script> newSet = new HashSet<Script>();
-
-			for (Script script: set) {
-				newSet.add(new Script(script));
-			}
-
-			ret.add(newSet);
-		}
-
-		return ret;
-	}
-	/**
-	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
-	 * all possible combinations that involve the given script are returned.
-	 */
-	public Set<Set<Script>> getIndependencies(Script script) {
-		if (!_scripts.contains(script)) return null;
-
-		Set<Set<Script>> ret = new HashSet<Set<Script>>();
-
-		for (Set<Script> set: _independentlyProcessableScripts) {
-			if (!set.contains(script)) continue;
-
-			Set<Script> newSet = new HashSet<Script>();
-			for (Script s: set) {
-				newSet.add(new Script(s));
-			}
-			ret.add(newSet);
-		}
-
-		return ret;
-	}
-	/**
-	 * returns all scripts of this collection that do not depend on other scripts.
+	 * returns all scripts of this collection that do not depend on other scripts (may be used to start processing).
 	 */
 	public Set<Script> getIndependentScripts() {
 		Set<Script> ret = new HashSet<Script>();
@@ -253,19 +252,19 @@ public class ScriptCollection {
 			System.out.println();
 		}
 	}
-	public void printIndependentlyProcessableScripts() {
-		/**
-		  	r5:
-			r3:
-			r1:
-			r4:	r3, r2
-			r2:	r1
-		 */
-
-		for (Set<Script> set: _independentlyProcessableScripts) {
-			System.out.println(set);
-		}
-	}
+	//	public void printIndependentlyProcessableScripts() {
+	//		/**
+	//		  	r5:
+	//			r3:
+	//			r1:
+	//			r4:	r3, r2
+	//			r2:	r1
+	//		 */
+	//
+	//		for (Set<Script> set: _independentlyProcessableScripts) {
+	//			System.out.println(set);
+	//		}
+	//	}
 
 
 
@@ -305,7 +304,7 @@ public class ScriptCollection {
 		_scriptDependencies = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>();
-		_independentlyProcessableScripts = new HashSet<Set<Script>>();
+		//_independentlyProcessableScripts = new HashSet<Set<Script>>();
 
 
 		/** calculate direct dependencies */
@@ -363,45 +362,45 @@ public class ScriptCollection {
 		}
 
 
-		/** calculate sets of scripts that may independently be processed */
-		for (Script script: _scripts) {
-
-			Set<Script> independentScripts = new HashSet<Script>(_scripts);
-			independentScripts.removeAll(_scriptInheritedDependencies.get(script)); // remove all scripts the current script depends on
-			independentScripts.removeAll(_scriptInheritedDependenciesVV.get(script)); // remove all scripts which depend on the current script
-			independentScripts.remove(script); // remove itself from its own independence list
-
-			Set<Set<Script>> currentSets = new HashSet<Set<Script>>();
-			currentSets.add(new HashSet<Script>(Arrays.asList(new Script[]{script})));
-
-			for (Script independentScript: independentScripts) {
-
-				Set<Set<Script>> newSets=new HashSet<Set<Script>>();
-				for (Set<Script> set: currentSets) {
-					Set<Script> dependencies=new HashSet<Script>();
-					for (Script setScript: set) {
-						if (_dependOn(setScript, independentScript)) {
-							dependencies.add(setScript);
-						}
-					}
-
-					if (dependencies.size() <= 0) {// script does not depend on any script of the current set -> insert it
-						set.add(independentScript);
-					} else { // script depends on scripts of the current set -> split the set up
-						Set<Script> newSet = new HashSet<Script>(set);
-						newSet.removeAll(dependencies);
-						newSets.add(newSet);
-					}
-				}
-				currentSets.addAll(newSets);
-			}
-
-			for (Set<Script> set: currentSets) {
-				if (set.size() > 1) {
-					_independentlyProcessableScripts.add(set);
-				}
-			}
-		}
+		//		/** calculate sets of scripts that may independently be processed */
+		//		for (Script script: _scripts) {
+		//
+		//			Set<Script> independentScripts = new HashSet<Script>(_scripts);
+		//			independentScripts.removeAll(_scriptInheritedDependencies.get(script)); // remove all scripts the current script depends on
+		//			independentScripts.removeAll(_scriptInheritedDependenciesVV.get(script)); // remove all scripts which depend on the current script
+		//			independentScripts.remove(script); // remove itself from its own independence list
+		//
+		//			Set<Set<Script>> currentSets = new HashSet<Set<Script>>();
+		//			currentSets.add(new HashSet<Script>(Arrays.asList(new Script[]{script})));
+		//
+		//			for (Script independentScript: independentScripts) {
+		//
+		//				Set<Set<Script>> newSets=new HashSet<Set<Script>>();
+		//				for (Set<Script> set: currentSets) {
+		//					Set<Script> dependencies=new HashSet<Script>();
+		//					for (Script setScript: set) {
+		//						if (_dependOn(setScript, independentScript)) {
+		//							dependencies.add(setScript);
+		//						}
+		//					}
+		//
+		//					if (dependencies.size() <= 0) {// script does not depend on any script of the current set -> insert it
+		//						set.add(independentScript);
+		//					} else { // script depends on scripts of the current set -> split the set up
+		//						Set<Script> newSet = new HashSet<Script>(set);
+		//						newSet.removeAll(dependencies);
+		//						newSets.add(newSet);
+		//					}
+		//				}
+		//				currentSets.addAll(newSets);
+		//			}
+		//
+		//			for (Set<Script> set: currentSets) {
+		//				if (set.size() > 1) {
+		//					_independentlyProcessableScripts.add(set);
+		//				}
+		//			}
+		//		}
 
 		return this;
 	}
@@ -443,5 +442,5 @@ public class ScriptCollection {
 	/** inherited dependencies vice versa, Map(Script => Set<Scripts> which depend on the first script) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependenciesVV;
 	/** sets of scripts that may independently be processed */
-	protected Set<Set<Script>> _independentlyProcessableScripts;
+	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }
