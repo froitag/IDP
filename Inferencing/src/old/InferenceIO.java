@@ -1,9 +1,13 @@
-package de.tum.in.fedsparql.inference.framework;
+package old;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.script.ScriptException;
 
 import de.tum.in.fedsparql.inference.dummy.JenaIO;
 import de.tum.in.fedsparql.inference.io.Database;
@@ -110,10 +114,50 @@ public class InferenceIO {
 	 * @throws FSException
 	 */
 	public InferenceIO preprocess() throws FSException {
-		// create temporary DB
-		_tempDB = _io.createDatabase(Database.Type.IN_MEMORY);
 
 		Map<String,Database> tempDBs = new HashMap<String,Database>();
+
+
+		/*** do Value Translations ***/
+		// TODO: remove old values after having normalised them?
+		Map<String,List<String>> normalisedPredicates=new HashMap<String,List<String>>();
+		for (NormalisationScript normalisationScript: _normalisationScripts) {
+			String dbName = normalisationScript.getDBName();
+			String predicateGUID = normalisationScript.getPredicateGUID();
+
+			// get DB
+			Database db = _io.getDatabaseByName(dbName);
+			if (db == null) {
+				//throw new Exception("Normalisations for '"+dbName+"' couldn't be processed since the database doesn't exist");
+				continue;
+			}
+
+			// add temporary DB for the DB that should get normalised
+			if (!tempDBs.containsKey(dbName)) {
+				tempDBs.put(dbName, _io.createDatabase(Database.Type.IN_MEMORY));
+			}
+			Database tempDB = tempDBs.get(dbName);
+
+			// normalise
+			FSResultSet rs = _io.execute("SELECT ?s ?o WHERE {?s " + predicateGUID + " ?o.}", db);
+			while (rs.hasNext()){
+				String[] tuple = rs.next();
+				try {
+					_io.writeTriple(tempDB, tuple[rs.column("s")], predicateGUID, normalisationScript.normalise(tuple[rs.column("o")]));
+				} catch (ScriptException e) {
+					//throw new Exception("Normalisation for DB '"+dbName+"', predicate '"+predicateGUID+"' couldn't be processed since the Script contains errors");
+					e.printStackTrace();
+				}
+			}
+			rs.close();
+
+
+			// add predicate GUID to list of normalised predicates
+			if (!normalisedPredicates.containsKey(dbName)) {
+				normalisedPredicates.put(dbName, new ArrayList<String>());
+			}
+			normalisedPredicates.get(dbName).add(predicateGUID);
+		}
 
 		/*** do GUID translations ***/
 		// merge all translations for one database into one single translation per database
@@ -126,23 +170,22 @@ public class InferenceIO {
 			guidTranslationInstances.get(guidTranslation.getDBName()).addTranslation(guidTranslation);
 		}
 
-
-		/* do Value Translations */
-		for (NormalisationScript normalisationScript: _normalisationScripts) {
-
-		}
-
 		// add new triples to our temporary database for each database translation
 		for (String dbName: guidTranslationInstances.keySet()) {
 			GUIDTranslation translation = guidTranslationInstances.get(dbName);
 			if (translation == null) continue;
 
 			// get database
-			Database db = _io.getDatabaseByName(dbName);
-			if (db == null) {
+			Database origDB = _io.getDatabaseByName(dbName);
+			if (origDB == null) {
 				//throw new Exception("Translations for '"+dbName+"' couldn't be processed since the database doesn't exist");
 				continue;
 			}
+			// get temp database for results
+			if (!tempDBs.containsKey(dbName)) {
+				tempDBs.put(dbName, _io.createDatabase(Database.Type.IN_MEMORY));
+			}
+			Database tempDB = tempDBs.get(dbName);
 
 			// run query and insert new triples
 			Map<String,Set<String>> guidTranslations = translation.getTranslations();
@@ -152,18 +195,22 @@ public class InferenceIO {
 
 				for (String newGUID: newGUIDs) {
 					// add all SUBJECT GUID translations
-					FSResultSet rs = _io.execute("SELECT ?p ?o WHERE {" + origGUID + " ?p ?o.}", db);
+					FSResultSet rs = _io.execute("SELECT ?p ?o WHERE {" + origGUID + " ?p ?o.}", origDB);
 					while (rs.hasNext()){
 						String[] tuple = rs.next();
-						_io.writeTriple(_tempDB, newGUID, tuple[rs.column("p")],  tuple[rs.column("o")]);
+						_io.writeTriple(tempDB, newGUID, tuple[rs.column("p")],  tuple[rs.column("o")]);
 					}
 					rs.close();
 
-					// add all OBJECT GUID translations
-					rs = _io.execute("SELECT ?s ?o WHERE {?s " + origGUID + " ?o.}", db);
+					// add all PREDICATE GUID translations
+					boolean predicateWasNormalised=false;
+					if (normalisedPredicates.containsKey(dbName)) {
+						predicateWasNormalised = normalisedPredicates.get(dbName).contains(origGUID);
+					}
+					rs = _io.execute("SELECT ?s ?o WHERE {?s " + origGUID + " ?o.}", predicateWasNormalised ? tempDB : origDB);
 					while (rs.hasNext()){
 						String[] tuple = rs.next();
-						_io.writeTriple(_tempDB, tuple[rs.column("s")], newGUID, tuple[rs.column("o")]);
+						_io.writeTriple(tempDB, tuple[rs.column("s")], newGUID, tuple[rs.column("o")]);
 					}
 					rs.close();
 				}
@@ -176,8 +223,18 @@ public class InferenceIO {
 
 		// TODO: normalise entries (preprocess)
 
-		// add temp DB to IO
+		// add temporary DB to IO
+		_tempDB = _io.createDatabase(Database.Type.IN_MEMORY);
 		_io.register(_tempDB);
+
+		for (Database db: tempDBs.values()) {
+			FSResultSet rs = _io.execute("SELECT ?s ?p ?o WHERE {?s ?p ?o.}", db);
+
+			while (rs.hasNext()){
+				String[] tuple = rs.next();
+				_io.writeTriple(_tempDB, tuple[rs.column("s")], tuple[rs.column("p")], tuple[rs.column("o")]);
+			}
+		}
 
 		return this;
 	}

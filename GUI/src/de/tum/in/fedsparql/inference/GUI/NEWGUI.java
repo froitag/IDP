@@ -1,26 +1,20 @@
 package de.tum.in.fedsparql.inference.GUI;
 
-import org.eclipse.jface.action.MenuManager;
+import old.InferenceIO;
+
 import org.eclipse.jface.action.StatusLineManager;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.wb.swt.SWTResourceManager;
-import swing2swt.layout.BorderLayout;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.internal.handlers.WizardHandler.New;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.wb.swt.SWTResourceManager;
 
+import swing2swt.layout.BorderLayout;
 import de.tum.in.fedsparql.inference.dummy.JenaIO;
-import de.tum.in.fedsparql.inference.framework.InferenceIO;
 
 public class NEWGUI extends ApplicationWindow {
 	private static Composite container;
@@ -30,7 +24,7 @@ public class NEWGUI extends ApplicationWindow {
 	private static StatusLineManager statusLineManager;
 	private static String saved_statusBar;
 	public static InferenceIO inferenceIO = new InferenceIO(new JenaIO());
-	
+
 	/**
 	 * Create the application window.
 	 */
@@ -41,7 +35,7 @@ public class NEWGUI extends ApplicationWindow {
 		//addMenuBar();
 		addStatusLine();
 	}
-	
+
 	/**
 	 * Create the status line manager.
 	 * @return the status line manager
@@ -51,44 +45,44 @@ public class NEWGUI extends ApplicationWindow {
 		statusLineManager = new StatusLineManager();
 		return statusLineManager;
 	}
-	
+
 	public static void goToSecondSite() {
 		firstsite.setVisible(false);
 		secondsite = new secondsite(container, SWT.NONE);
 		secondsite.setForeground(SWTResourceManager.getColor(0, 0, 0));
 		secondsite.setSize(container.getSize());
 	}
-	
+
 	public static void goToThirdSite() {
 		secondsite.setVisible(false);
 		thirdsite = new thirdsite(container, SWT.NONE);
 		thirdsite.setForeground(SWTResourceManager.getColor(0, 0, 0));
 		thirdsite.setSize(container.getSize());
 	}
-	
+
 	public static void goBackToFirstSite() {
 		secondsite.setVisible(false);
 		firstsite.setVisible(true);
 	}
-	
+
 	public static void goBackToSecondSite() {
 		thirdsite.setVisible(false);
 		secondsite.setVisible(true);
 	}
-	
+
 	public static void setStatusBar(String message) {
 		saved_statusBar = message;
 		statusLineManager.setMessage(message);
 	}
-	
+
 	public static void temporaryStatusBar(String temp_string) {
 		statusLineManager.setMessage(temp_string);
 	}
-	
+
 	public static void undoStatusBar() {
 		statusLineManager.setMessage(saved_statusBar);
 	}
-	
+
 	/**
 	 * Create contents of the application window.
 	 * @param parent
@@ -97,13 +91,13 @@ public class NEWGUI extends ApplicationWindow {
 	protected Control createContents(Composite parent) {
 		container = new Composite(parent, SWT.NONE);
 		container.setLayout(new BorderLayout(0, 0));
-		
+
 		firstsite = new firstsite(container, SWT.NONE);
 		firstsite.setForeground(SWTResourceManager.getColor(0, 0, 0));
-		
+
 		Label label = new Label(container, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(BorderLayout.SOUTH);
-		
+
 		//composite = new Composite(container, SWT.NONE);
 		//composite.setForeground(SWTResourceManager.getColor(0, 0, 0));
 

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.JS;
 
 import java.util.Map;
 

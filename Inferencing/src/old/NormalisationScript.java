@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package old;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +8,8 @@ import javax.script.ScriptException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+import de.tum.in.fedsparql.inference.framework.JS.JSHelper;
 
 /**
  * Represents a Script used to normalise triple objects.
@@ -41,7 +43,7 @@ public class NormalisationScript {
 	 * @param predicateGUID
 	 * @throws ScriptException
 	 */
-	public NormalisationScript(String jsonRepresentation, String dbName, String predicateGUID) throws ScriptException {
+	protected NormalisationScript(String jsonRepresentation, String dbName, String predicateGUID) throws ScriptException {
 		JSONObject jObj = (JSONObject) JSONValue.parse(jsonRepresentation);
 		if (!jObj.containsKey("name") || !jObj.containsKey("script")) {
 			throw new ScriptException("Couldn't parse jsonRepresentation!");
@@ -89,16 +91,6 @@ public class NormalisationScript {
 	public CompiledScript getScript() {
 		return _cScript;
 	}
-	/**
-	 * Gets the general JSON representation of this script.
-	 * This representation only contains the script's name and its code.
-	 * The JSON representation of a script can be converted to a NormalisationScript using NormalisationScript.fromJsonRepresentation().
-	 * 
-	 * @return JSON String
-	 */
-	public String getJSONRepresentation() {
-		return _jsonRepr;
-	}
 
 	/**
 	 * Normalizes a given value with the script this NormalisationScript represents.
@@ -115,6 +107,32 @@ public class NormalisationScript {
 	}
 
 
+
+	/**
+	 * Gets the general JSON representation of this script.
+	 * This representation only contains the script's name and its code.
+	 * The JSON representation of a script can be converted to a NormalisationScript using NormalisationScript.fromJsonRepresentation().
+	 * 
+	 * @return JSON String
+	 */
+	public String toJSONRepresentation() {
+		return _jsonRepr;
+	}
+	/**
+	 * Creates a NormalisationScript using a JSON representation of a script (this.getJSONRepresentation()) for the given database and predicateGUID.
+	 * 
+	 * @param jsonRepresentation
+	 * @param dbName
+	 * @param predicateGUID
+	 * @return NormailsationScript
+	 * @throws ScriptException
+	 */
+	public static NormalisationScript fromJSONRepresentation(String jsonRepresentation, String dbName, String predicateGUID) throws ScriptException {
+		return new NormalisationScript(jsonRepresentation, dbName, predicateGUID);
+	}
+
+
+
 	/* protected helper */
 	protected static String _genJsonRepr(String name, String rawScript) {
 		// $val can be used inside the script to reference the value (=object) of the current DB entry
@@ -126,8 +144,8 @@ public class NormalisationScript {
 		return script;
 	}
 	protected static CompiledScript _genScript(String jsonRepr) throws ScriptException {
-		String script = jsonRepr + ".script($VALUE);";
-
+		String script = "var x="+jsonRepr + "; x.script($VALUE);";
+		System.out.println(script);
 		return JSHelper.compile(script);
 	}
 
