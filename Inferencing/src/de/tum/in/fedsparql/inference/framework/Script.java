@@ -50,4 +50,9 @@ public class Script {
 	public int hashCode() {
 		return this.id!=null ? this.id.hashCode() : 0;
 	}
+
+	@Override
+	public String toString() {
+		return this.id;
+	}
 }
