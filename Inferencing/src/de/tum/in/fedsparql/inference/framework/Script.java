@@ -9,6 +9,7 @@ import java.util.Set;
  * 
  */
 public class Script {
+	public String id;
 	public Set<String> inputDatabases;
 	public Set<String> outputDatabases;
 	public String script;
@@ -20,8 +21,8 @@ public class Script {
 	 * @param outputDatabases
 	 * @param script
 	 */
-	public Script(String[] inputDatabases, String[] outputDatabases, String script) {
-
+	public Script(String id, String[] inputDatabases, String[] outputDatabases, String script) {
+		this.id = id;
 		this.inputDatabases = new HashSet<String>(Arrays.asList(inputDatabases));
 		this.outputDatabases = new HashSet<String>(Arrays.asList(outputDatabases));
 		this.script = script;
@@ -32,8 +33,21 @@ public class Script {
 	 * @param script
 	 */
 	public Script(Script script) {
+		this.id = script.id;
 		this.inputDatabases = new HashSet<String>(script.inputDatabases);
 		this.outputDatabases = new HashSet<String>(script.outputDatabases);
 		this.script = script.script;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Script)) return false;
+
+		Script script = (Script) obj;
+		return script!=null && (script.id!=null?script.id.equals(this.id):this.id==null);
+	}
+	@Override
+	public int hashCode() {
+		return this.id!=null ? this.id.hashCode() : 0;
 	}
 }
