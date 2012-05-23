@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package old;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +8,8 @@ import javax.script.ScriptException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+import de.tum.in.fedsparql.inference.framework.JS.JSHelper;
 
 /**
  * Represents a Script used to normalise triple objects.

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package old;
 
 import java.util.HashMap;
 import java.util.HashSet;
