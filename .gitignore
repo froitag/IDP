@@ -1,7 +1,5 @@
 **/.settings
 **/.classpath
 **/.project
-**/.metadata
-/Database/bin
-/GUI/bin
-/Inferencing/bin
+**/bin
+.metadata
