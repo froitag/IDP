@@ -18,9 +18,9 @@ public class Main2 {
 
 		// set up scripts
 		Script r1 = new Script(
-				"r5",
-				new String[]{"a"},
-				new String[]{"b"},
+				"r1",
+				new String[]{"f"},
+				new String[]{"e"},
 				".."
 				);
 		Script r2 = new Script(
@@ -42,9 +42,9 @@ public class Main2 {
 				".."
 				);
 		Script r5 = new Script(
-				"r1",
-				new String[]{"f"},
-				new String[]{"e"},
+				"r5",
+				new String[]{"a"},
+				new String[]{"b"},
 				".."
 				);
 
@@ -59,6 +59,8 @@ public class Main2 {
 					r5
 			});
 
+			scripts.printScripts();
+			System.out.println();
 			scripts.printDirectDependencies();
 			System.out.println();
 			scripts.printInheritedDependencies();
@@ -67,7 +69,7 @@ public class Main2 {
 			System.out.println();
 
 			// create environment
-			ExecutionEnvironment env = new ExecutionEnvironment(new String[]{"a","b","c"});
+			ExecutionEnvironment env = new ExecutionEnvironment(new String[]{"pc1","pc2"});
 
 			// create schedule
 			ScriptScheduler scheduler = new SimpleScriptScheduler(env);

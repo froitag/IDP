@@ -222,6 +222,12 @@ public class ScriptCollection {
 	}
 
 
+	public void printScripts() {
+		for (Script script: _scripts) {
+			System.out.println("Script \""+script.id+"\":\t"+script.inputDatabases+"\t\t->\t"+script.outputDatabases);
+		}
+	}
+
 	public void printDirectDependencies() {
 		/**
 			r1:[]
