@@ -1,3 +1,4 @@
+
 package de.tum.in.fedsparql.inference.framework;
 
 import java.util.HashMap;
@@ -222,12 +223,6 @@ public class ScriptCollection {
 	}
 
 
-	public void printScripts() {
-		for (Script script: _scripts) {
-			System.out.println("Script \""+script.id+"\":\t"+script.inputDatabases+"\t\t->\t"+script.outputDatabases);
-		}
-	}
-
 	public void printDirectDependencies() {
 		/**
 			r1:[]
@@ -450,3 +445,4 @@ public class ScriptCollection {
 	/** sets of scripts that may independently be processed */
 	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }
+>>>>>>> ec39921425cd7598ac341c63e261fa23f2a8b4aa
