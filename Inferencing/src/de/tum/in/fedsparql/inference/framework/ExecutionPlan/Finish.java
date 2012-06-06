@@ -1,6 +1,5 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
-import java.util.Set;
 
 
 /**
@@ -8,19 +7,10 @@ import java.util.Set;
  */
 public class Finish extends SynchronizationPoint {
 
-	/**
-	 * constructor
-	 * 
-	 * @param waitFor
-	 * @param next
-	 */
-	public Finish(Set<ExecutionStep> waitFor, ExecutionStep next) {
-		super(waitFor, next);
-	}
-	public Finish() {
-		super();
-	}
 
+	public Finish(Object ID) {
+		super(ID);
+	}
 
 	/**
 	 * terminate execution
@@ -29,7 +19,10 @@ public class Finish extends SynchronizationPoint {
 	void execute() {
 		super.execute();
 
-		Thread.currentThread().interrupt();
+		if (_doneSteps.containsAll(this.waitFor)) {
+			System.out.println("FINISH");
+			Thread.currentThread().interrupt();
+		}
 	}
 
 }

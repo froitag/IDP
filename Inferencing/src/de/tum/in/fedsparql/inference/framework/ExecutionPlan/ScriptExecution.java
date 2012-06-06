@@ -7,27 +7,29 @@ import de.tum.in.fedsparql.inference.framework.Script;
  */
 public class ScriptExecution extends ExecutionStep {
 
+	public ScriptExecution(Object ID) {
+		super(ID);
+	}
+
+	@Override
+	public String toString() {
+		String str = super.toString();
+		str += " " + this.script + "; -> " + (this.next!=null?this.next.getID():"NULL");
+		return str;
+	}
+
+
+
 	/**
 	 * Script to execute
 	 */
-	public Script script;
+	public Script script=null;
 	/**
 	 * Next step
 	 */
-	public ExecutionStep next;
+	public ExecutionStep next=null;
 
 
-	/**
-	 * constructor
-	 */
-	public ScriptExecution(Script script, ExecutionStep next) {
-		this.script = script;
-		this.next = next;
-	}
-	public ScriptExecution() {
-		this.script = null;
-		this.next = null;
-	}
 
 
 	/**
@@ -35,6 +37,7 @@ public class ScriptExecution extends ExecutionStep {
 	 */
 	@Override
 	void execute() {
+		System.out.println(this);
 		super.execute();
 
 		//script.execute();

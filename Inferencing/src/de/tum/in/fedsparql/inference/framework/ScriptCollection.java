@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
+import de.tum.in.fedsparql.inference.io.Database;
 
 public class ScriptCollection {
 
@@ -27,13 +28,28 @@ public class ScriptCollection {
 		_calculateDependencies();
 	}
 	/**
+	 * construcotr
+	 * 
+	 * @param scripts
+	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
+	 * @throws CircularDependencyException
+	 */
+	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) throws CircularDependencyException {
+		for (Script script: scripts) {
+			_addScript(script);
+		}
+		_removedDependencies = new HashMap<Script,Set<Script>>(manuallyRemovedDependencies);
+
+		_calculateDependencies();
+	}
+	/**
 	 * copy constructor
 	 * 
 	 * @param scriptCollection
 	 * @throws CircularDependencyException
 	 */
 	public ScriptCollection(ScriptCollection scriptCollection) throws CircularDependencyException {
-		this((Script[])scriptCollection.getScripts().toArray());
+		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getRemovedDependencies());
 	}
 
 
@@ -51,11 +67,14 @@ public class ScriptCollection {
 
 		return ret;
 	}
+	public Map<Script,Set<Script>> getRemovedDependencies() {
+		return new HashMap<Script,Set<Script>>(_removedDependencies);
+	}
 	/**
 	 * returns all databases the scripts read from.
 	 */
-	public Set<String> getInputDatabases() {
-		Set<String> ret=new HashSet<String>();
+	public Set<Database> getInputDatabases() {
+		Set<Database> ret=new HashSet<Database>();
 
 		for (Script script: _scripts) {
 			ret.addAll(script.inputDatabases);
@@ -66,8 +85,8 @@ public class ScriptCollection {
 	/**
 	 * returns all databases the scripts write to.
 	 */
-	public Set<String> getOutputDatabases() {
-		Set<String> ret=new HashSet<String>();
+	public Set<Database> getOutputDatabases() {
+		Set<Database> ret=new HashSet<Database>();
 
 		for (Script script: _scripts) {
 			ret.addAll(script.outputDatabases);
@@ -101,13 +120,27 @@ public class ScriptCollection {
 	 * @return Set of scripts the given script depends on
 	 */
 	public Set<Script> getDirectDependencies(Script script) {
-		if (!_scriptDependencies.containsKey(script)) return null;
+		if (!_scripts.contains(script)) return null;
 
 
 		Set<Script> dependencies = new HashSet<Script>();
+		if (_scriptDependencies.containsKey(script)) {
+			for (Script dependency: _scriptDependencies.get(script)) {
+				dependencies.add(new Script(dependency));
+			}
+		}
 
-		for (Script dependency: _scriptDependencies.get(script)) {
-			dependencies.add(new Script(dependency));
+		return dependencies;
+	}
+	public Set<Script> getDirectDependentScripts(Script script) {
+		if (!_scripts.contains(script)) return null;
+
+
+		Set<Script> dependencies = new HashSet<Script>();
+		if (_scriptDependenciesVV.containsKey(script)) {
+			for (Script dependency: _scriptDependenciesVV.get(script)) {
+				dependencies.add(new Script(dependency));
+			}
 		}
 
 		return dependencies;
@@ -189,6 +222,7 @@ public class ScriptCollection {
 	//	}
 	/**
 	 * returns all scripts of this collection that do not depend on other scripts (may be used to start processing).
+	 * returns a set of copies that can be manipulated without changing the ScriptCollection.
 	 */
 	public Set<Script> getIndependentScripts() {
 		Set<Script> ret = new HashSet<Script>();
@@ -221,8 +255,67 @@ public class ScriptCollection {
 
 		return false;
 	}
+	public boolean dependsOn(Script script, Script dependency) {
+		Set<Script> set = new HashSet<Script>();
+		set.add(dependency);
+
+		return this.dependsOn(script, set);
+	}
 
 
+	/**
+	 * removes the dependency of `script` to `dependency`.
+	 * => "`script` does not depend on `dependency`"
+	 * 
+	 * @param script
+	 * @param dependency
+	 */
+	public void removeDependency(Script script, Script dependency) {
+		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
+		Set<Script> set = new HashSet<Script>();
+		set.add(dependency);
+		deps.put(script, set);
+
+		this.removeDependencies(deps);
+	}
+	/**
+	 * removes the dependencies of the scripts to their regarding set of scripts
+	 * @param dependencies
+	 */
+	public void removeDependencies(Map<Script,Set<Script>> dependencies) {
+		for (Script script: dependencies.keySet()) {
+			if (!_removedDependencies.containsKey(script)) {
+				_removedDependencies.put(script, new HashSet<Script>());
+			}
+
+			_removedDependencies.get(script).addAll(dependencies.get(script));
+		}
+
+		try {
+			_calculateDependencies();
+		} catch (CircularDependencyException e) {
+
+		}
+	}
+
+	/**
+	 * removes all dependencies to `dependency`
+	 * 
+	 * @param dependency
+	 */
+	public void removeDependency(Script dependency) {
+		for (Script script: _scripts) {
+			this.removeDependency(script, dependency);
+		}
+	}
+
+
+
+	public void printScripts() {
+		for (Script script: _scripts) {
+			System.out.println("Script \""+script.id+"\": \t"+script.inputDatabases+"\t->\t"+script.outputDatabases);
+		}
+	}
 	public void printDirectDependencies() {
 		/**
 			r1:[]
@@ -285,7 +378,7 @@ public class ScriptCollection {
 		_scripts.add(new Script(script));
 
 		// add its output databases to the _outputRelations cache
-		for (String oDB: script.outputDatabases) {
+		for (Database oDB: script.outputDatabases) {
 			if (!_outputRelations.containsKey(oDB)) {
 				_outputRelations.put(oDB, new HashSet<Script>());
 			}
@@ -303,6 +396,7 @@ public class ScriptCollection {
 	protected ScriptCollection _calculateDependencies() throws CircularDependencyException {
 
 		_scriptDependencies = new HashMap<Script,Set<Script>>();
+		_scriptDependenciesVV = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>();
 		//_independentlyProcessableScripts = new HashSet<Set<Script>>();
@@ -315,11 +409,19 @@ public class ScriptCollection {
 			_scriptInheritedDependencies.put(script, new HashSet<Script>());
 			_scriptInheritedDependenciesVV.put(script, new HashSet<Script>());
 
-			for (String iDB: script.inputDatabases) {
+			for (Database iDB: script.inputDatabases) {
 				if (!_outputRelations.containsKey(iDB)) continue;
 
 				for (Script dependency: _outputRelations.get(iDB)) {
+					if (_removedDependencies.containsKey(script) && _removedDependencies.get(script).contains(dependency)) continue; // ignore the manually removed dependencies
+
+
 					_scriptDependencies.get(script).add(dependency);
+
+					if (!_scriptDependenciesVV.containsKey(dependency)) {
+						_scriptDependenciesVV.put(dependency, new HashSet<Script>());
+					}
+					_scriptDependenciesVV.get(dependency).add(script);
 				}
 			}
 		}
@@ -433,11 +535,13 @@ public class ScriptCollection {
 	/* protected member */
 	/** this collection's scripts */
 	protected Set<Script> _scripts=new HashSet<Script>();
+	protected Map<Script,Set<Script>> _removedDependencies=new HashMap<Script,Set<Script>>();
 
 	/** database<->script relations Map(outputDatabase => Set<Scripts> which write into it) */
-	protected Map<String,Set<Script>> _outputRelations=new HashMap<String,Set<Script>>();
+	protected Map<Database,Set<Script>> _outputRelations=new HashMap<Database,Set<Script>>();
 	/** script dependencies Map(Script => Set<Scripts> which the first script directly depends on) */
 	protected Map<Script,Set<Script>> _scriptDependencies;
+	protected Map<Script,Set<Script>> _scriptDependenciesVV;
 	/** inherited dependencies Map(Script => Set<Scripts> which the first script depends on) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependencies;
 	/** inherited dependencies vice versa, Map(Script => Set<Scripts> which depend on the first script) */
@@ -445,4 +549,3 @@ public class ScriptCollection {
 	/** sets of scripts that may independently be processed */
 	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }
->>>>>>> ec39921425cd7598ac341c63e261fa23f2a8b4aa

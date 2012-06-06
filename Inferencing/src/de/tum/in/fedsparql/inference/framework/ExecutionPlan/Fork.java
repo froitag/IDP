@@ -10,21 +10,25 @@ import java.util.Set;
  */
 public class Fork extends ExecutionStep {
 
+	public Fork(Object ID) {
+		super(ID);
+	}
+
+	@Override
+	public String toString() {
+		String str=super.toString();
+		for (ExecutionStep step: this.branches) {
+			str += " ->" + step.getID();
+		}
+
+		return str;
+	}
+
+
 	/**
 	 * Next parallel executable steps
 	 */
-	public Set<ExecutionStep> branches;
-
-	/**
-	 * constructor
-	 * @param branches
-	 */
-	public Fork(Set<ExecutionStep> branches) {
-		this.branches = branches;
-	}
-	public Fork() {
-		this.branches = new HashSet<ExecutionStep>();
-	}
+	public Set<ExecutionStep> branches=new HashSet<ExecutionStep>();
 
 
 	/**
@@ -33,7 +37,7 @@ public class Fork extends ExecutionStep {
 	 */
 	@Override
 	void execute() {
-		super.execute();
+		System.out.println(this);
 
 		/*
 		 *  continue first branch in current thread,

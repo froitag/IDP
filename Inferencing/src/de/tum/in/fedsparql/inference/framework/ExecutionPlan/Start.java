@@ -7,20 +7,19 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
  */
 public class Start extends ExecutionStep {
 
+	public Start(Object ID) {
+		super(ID);
+	}
+
+
 	/**
 	 * next step
 	 */
-	public ExecutionStep next;
+	public ExecutionStep next=null;
 
-	/**
-	 * constructor
-	 * @param next
-	 */
-	public Start(ExecutionStep next) {
-		this.next = next;
-	}
-	public Start() {
-		this.next = null;
+	@Override
+	public String toString() {
+		return super.toString() + " ->" + this.next.getID();
 	}
 
 
@@ -30,6 +29,7 @@ public class Start extends ExecutionStep {
 	@Override
 	void execute() {
 		super.execute();
+		System.out.println("START");
 
 		// start execution in new thread
 		new ExecutionThread(this.next).start();

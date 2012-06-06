@@ -1,15 +1,13 @@
 
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
-import de.tum.in.fedsparql.inference.framework.ExecutionEnvironment;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
-import de.tum.in.fedsparql.inference.framework.ScriptScheduler;
-import de.tum.in.fedsparql.inference.framework.ScriptScheduler.Schedule;
-import de.tum.in.fedsparql.inference.framework.SimpleScriptScheduler;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionPlan;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionStep;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
 
-public class Main2 {
+public class Main3 {
 
 	/**
 	 * @param args
@@ -48,6 +46,12 @@ public class Main2 {
 		//				new String[]{"f"},
 		//				".."
 		//				);
+		Script r6 = new Script(
+				"r6",
+				new JenaDatabase[]{new JenaDatabase("c")},
+				new JenaDatabase[]{new JenaDatabase("e")},
+				".."
+				);
 
 		ScriptCollection scripts;
 		try {
@@ -57,7 +61,8 @@ public class Main2 {
 					r2,
 					r3,
 					r4,
-					//					r5
+					//					r5,
+					r6
 			});
 
 			scripts.printScripts();
@@ -71,14 +76,20 @@ public class Main2 {
 
 
 
-			// create environment
-			ExecutionEnvironment env = new ExecutionEnvironment(new String[]{"Knoten1","Knoten2","Knoten3"});
+			// create execution plan
+			System.out.println("EXECUTION PLAN:");
+			ExecutionPlan p = new ExecutionPlan(scripts);
+			for (ExecutionStep step: p.getSteps()) {
+				System.out.println(step);
+			}
 
-			// create schedule
-			ScriptScheduler scheduler = new SimpleScriptScheduler(env);
-			Schedule schedule = scheduler.generateSchedule(scripts);
+			System.out.println();
+			System.out.println();
+			System.out.println();
 
-			System.out.println(schedule);
+			// execute execution plan
+			System.out.println("EXECUTING:");
+			p.execute();
 		} catch (CircularDependencyException e) {
 			e.printStackTrace();
 		}

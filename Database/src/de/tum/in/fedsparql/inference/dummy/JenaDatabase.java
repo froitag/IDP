@@ -114,4 +114,23 @@ public class JenaDatabase implements Database {
 			model.add(model.createStatement(s, p, l));
 		}
 	}
+
+
+	@Override
+	public String toString() {
+		return this.getName();
+	}
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof JenaDatabase) {
+			JenaDatabase db = (JenaDatabase) obj;
+			return db.getName()!=null ? db.getName().equals(this.getName()) : this.getName()==null;
+		}
+
+		return false;
+	}
 }

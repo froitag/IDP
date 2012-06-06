@@ -11,10 +11,10 @@ public interface Database {
 		PERSISTENT,
 		IN_MEMORY
 	}
-	
+
 	/** Returns the name of the database*/
 	public String getName();
-	
+
 	/** Drops (deletes) the database*/
 	public void drop();
 }

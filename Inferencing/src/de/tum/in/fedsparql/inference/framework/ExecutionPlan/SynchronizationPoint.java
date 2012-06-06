@@ -11,51 +11,61 @@ import java.util.Set;
  */
 public class SynchronizationPoint extends ExecutionStep {
 
+	public SynchronizationPoint(Object ID) {
+		super(ID);
+	}
+
 	/**
 	 * next step
 	 */
-	public ExecutionStep next;
+	public ExecutionStep next=null;
 	/**
 	 * wait for these steps before continuing
 	 */
-	public Set<ExecutionStep> waitFor;
+	public Set<ExecutionStep> waitFor=new HashSet<ExecutionStep>();
 
 
-	/**
-	 * constructor
-	 * 
-	 * @param waitFor
-	 * @param next
-	 */
-	public SynchronizationPoint(Set<ExecutionStep> waitFor, ExecutionStep next) {
-		this.waitFor = waitFor;
-		this.next = next;
+	@Override
+	public String toString() {
+		String str = super.toString();
+		for (ExecutionStep step: this.waitFor) {
+			str += " " + step.getID();
+		}
+		str += "; ->" + (this.next!=null?this.next.getID():"NULL");
+
+		return str;
 	}
-	public SynchronizationPoint() {
-		this.waitFor = new HashSet<ExecutionStep>();
-		this.next = null;
-	}
-
 
 	/**
 	 * merge execution
 	 */
 	@Override
 	void execute() {
-		super.execute();
+		System.out.println(this);
 
 		if (Thread.currentThread() instanceof ExecutionThread) {
 			ExecutionThread t = (ExecutionThread) Thread.currentThread();
 
-			this.waitFor.remove(t.executionStep);
 
-			if (this.waitFor.isEmpty()) {
+			if (t.executionStep != null) {
+				_doneSteps.add(t.executionStep);
+			}
+
+			if (_doneSteps.containsAll(this.waitFor)) {
 				// continue execution
-				this.next.execute();
+				System.out.println("SYNC continue");
+				if (this.next != null) {
+					this.next.execute();
+				} else {
+					Thread.currentThread().interrupt();
+				}
 			} else {
 				// terminate thread, wait until all other dependencies are completed
+				System.out.println("SYNC wait");
 				Thread.currentThread().interrupt();
 			}
 		}
 	}
+
+	protected Set<ExecutionStep> _doneSteps=new HashSet<ExecutionStep>();
 }
