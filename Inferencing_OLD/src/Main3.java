@@ -40,12 +40,12 @@ public class Main3 {
 				new JenaDatabase[]{new JenaDatabase("e")},
 				".."
 				);
-		//		Script r5 = new Script(
-		//				"r5",
-		//				new String[]{"e"},
-		//				new String[]{"f"},
-		//				".."
-		//				);
+		Script r5 = new Script(
+				"r5",
+				new JenaDatabase[]{new JenaDatabase("e")},
+				new JenaDatabase[]{new JenaDatabase("e")},
+				".."
+				);
 		Script r6 = new Script(
 				"r6",
 				new JenaDatabase[]{new JenaDatabase("c")},
@@ -61,7 +61,7 @@ public class Main3 {
 					r2,
 					r3,
 					r4,
-					//					r5,
+					r5,
 					r6
 			});
 

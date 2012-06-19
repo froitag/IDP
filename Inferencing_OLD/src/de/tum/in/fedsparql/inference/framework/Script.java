@@ -7,53 +7,30 @@ import java.util.Set;
 import de.tum.in.fedsparql.inference.io.Database;
 
 /**
- * representing a script which can be executed on de.tum.in.fedsparql.inference.io.Databases
+ * representing a script that can be run on de.tum.in.fedsparql.inference.io.Databases
  * 
  */
 public class Script {
-	/*
-	 * public member
-	 */
-	/**
-	 * The Script's unique ID
-	 */
 	public String id;
-	/**
-	 * Set of Databases the Script reads from
-	 */
 	public Set<Database> inputDatabases;
-	/**
-	 * Set of Databases the Script writes to
-	 */
 	public Set<Database> outputDatabases;
+	public String script;
+
 	/**
-	 * The actual JavaScript
-	 */
-	public String jScript;
-
-
-
-	/*
-	 * constructors
-	 */
-	/**
-	 * Constructor.
-	 * Initializes a Script.
+	 * constructor
 	 * 
-	 * @param id The Script's unique ID
-	 * @param inputDatabases Set of Databases the Script reads from
-	 * @param outputDatabases Set of Databases the Script writes to
-	 * @param jScript The actual JavaScript
+	 * @param inputDatabases
+	 * @param outputDatabases
+	 * @param script
 	 */
-	public Script(String id, Database[] inputDatabases, Database[] outputDatabases, String jScript) {
+	public Script(String id, Database[] inputDatabases, Database[] outputDatabases, String script) {
 		this.id = id;
 		this.inputDatabases = new HashSet<Database>(Arrays.asList(inputDatabases));
 		this.outputDatabases = new HashSet<Database>(Arrays.asList(outputDatabases));
-		this.jScript = jScript;
+		this.script = script;
 	}
 	/**
-	 * Copy Constructor.
-	 * Creates a copy of a script.
+	 * copy constructor
 	 * 
 	 * @param script
 	 */
@@ -61,15 +38,11 @@ public class Script {
 		this.id = script.id;
 		this.inputDatabases = new HashSet<Database>(script.inputDatabases);
 		this.outputDatabases = new HashSet<Database>(script.outputDatabases);
-		this.jScript = script.jScript;
+		this.script = script.script;
 	}
 
-
-	/*
-	 * overridden methods
-	 */
 	/**
-	 * Two Scripts equal each other if they have the same ID.
+	 * two Scripts equal each other if they have the same ID
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -79,7 +52,7 @@ public class Script {
 		return script!=null && (script.id!=null?script.id.equals(this.id):this.id==null);
 	}
 	/**
-	 * HashCode of the script's ID.
+	 * hashcode of the script's ID
 	 */
 	@Override
 	public int hashCode() {
@@ -87,7 +60,7 @@ public class Script {
 	}
 
 	/**
-	 * The script's ID.
+	 * the script's ID
 	 */
 	@Override
 	public String toString() {
