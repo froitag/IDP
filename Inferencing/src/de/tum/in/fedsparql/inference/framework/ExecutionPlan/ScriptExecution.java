@@ -1,6 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
 import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionThread;
 
 /**
  * Script Execution

@@ -3,6 +3,8 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionThread;
+
 
 /**
  * Synchronization Point.

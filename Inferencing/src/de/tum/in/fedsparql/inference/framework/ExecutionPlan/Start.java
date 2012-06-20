@@ -1,6 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
 
+
 /**
  * Execution Start Point.
  * Starts execution in a separate Thread.
