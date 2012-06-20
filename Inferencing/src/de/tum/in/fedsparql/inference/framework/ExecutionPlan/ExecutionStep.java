@@ -1,5 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+
 /**
  * general execution step
  */
@@ -18,6 +20,6 @@ public abstract class ExecutionStep {
 		return _ID+"#"+this.getClass().getSimpleName();
 	}
 
-	abstract void execute(Dispatcher dispatcher);
+	abstract void execute(Scheduler dispatcher);
 
 }

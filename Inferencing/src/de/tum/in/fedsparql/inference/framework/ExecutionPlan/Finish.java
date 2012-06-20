@@ -1,5 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+
 
 
 /**
@@ -16,7 +18,7 @@ public class Finish extends SynchronizationPoint {
 	 * terminate execution
 	 */
 	@Override
-	void execute(Dispatcher dispatcher) {
+	void execute(Scheduler dispatcher) {
 		super.execute(dispatcher);
 
 		if (_doneSteps.containsAll(this.waitFor)) {

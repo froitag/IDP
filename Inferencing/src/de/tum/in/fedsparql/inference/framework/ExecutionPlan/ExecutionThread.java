@@ -1,14 +1,16 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+
 
 
 
 class ExecutionThread extends Thread {
 
 	public ExecutionStep executionStep;
-	public Dispatcher dispatcher;
+	public Scheduler dispatcher;
 
-	public ExecutionThread(ExecutionStep step, Dispatcher dispatcher) {
+	public ExecutionThread(ExecutionStep step, Scheduler dispatcher) {
 		this.executionStep = step;
 		this.dispatcher = dispatcher;
 	}

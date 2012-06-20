@@ -2,10 +2,10 @@
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan.Dispatcher;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionStep;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.SimpleDispatcher;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.SimpleScheduler;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
 
@@ -90,7 +90,7 @@ public class Main {
 			System.out.println();
 
 			// execute execution plan
-			Dispatcher dispatcher = new SimpleDispatcher();
+			Scheduler dispatcher = new SimpleScheduler();
 			System.out.println("EXECUTING:");
 			p.execute(dispatcher);
 		} catch (CircularDependencyException e) {

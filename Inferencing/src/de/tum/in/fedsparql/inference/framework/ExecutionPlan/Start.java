@@ -1,5 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+
 
 
 /**
@@ -28,7 +30,7 @@ public class Start extends ExecutionStep {
 	 * start execution
 	 */
 	@Override
-	void execute(Dispatcher dispatcher) {
+	void execute(Scheduler dispatcher) {
 		System.out.println("START");
 
 		// start execution in new thread

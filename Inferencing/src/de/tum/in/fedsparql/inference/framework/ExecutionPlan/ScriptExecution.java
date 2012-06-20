@@ -2,6 +2,7 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 
 /**
  * Script Execution
@@ -41,7 +42,7 @@ public class ScriptExecution extends ExecutionStep {
 	 * Execute Script and goto next step
 	 */
 	@Override
-	void execute(Dispatcher dispatcher) {
+	void execute(Scheduler dispatcher) {
 		System.out.println(this);
 		if (Thread.currentThread() instanceof ExecutionThread) {
 			ExecutionThread t = (ExecutionThread) Thread.currentThread();
@@ -49,7 +50,7 @@ public class ScriptExecution extends ExecutionStep {
 			t.executionStep = this;
 		}
 
-		dispatcher.dispatch(this.script, this.scriptCollection);
+		dispatcher.enqueue(this.script, this.scriptCollection);
 		this.next.execute(dispatcher);
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
 public class ExecutionPlan {
@@ -204,7 +205,7 @@ public class ExecutionPlan {
 	/**
 	 * run plan
 	 */
-	public void execute(Dispatcher dispatcher) {
+	public void execute(Scheduler dispatcher) {
 		_startStep.execute(dispatcher);
 	}
 
