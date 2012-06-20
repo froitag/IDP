@@ -43,6 +43,7 @@ public class ExecutionPlan {
 					// create _scriptExecution step
 					ScriptExecution se = new ScriptExecution(++stepId);
 					se.script = script;
+					se.scriptCollection = sc;
 					_steps.add(se);
 
 					f.branches.add(se);
@@ -53,6 +54,7 @@ public class ExecutionPlan {
 			} else { // single execution
 				ScriptExecution se = new ScriptExecution(++stepId);
 				se.script = processableScripts.iterator().next();
+				se.scriptCollection = sc;
 				currentExecs.add(se);
 
 				_startStep.next = se;
@@ -106,6 +108,7 @@ public class ExecutionPlan {
 							// create script execution that follows synch point
 							ScriptExecution se = new ScriptExecution(++stepId);
 							se.script = script;
+							se.scriptCollection = sc;
 
 							nextExecs.add(se);
 							_steps.add(se);
@@ -123,6 +126,7 @@ public class ExecutionPlan {
 					} else {
 						// SEQUENTIAL SCRIPT EXECUTION
 						ScriptExecution se = new ScriptExecution(++stepId);
+						se.scriptCollection = sc;
 						se.script = script;
 
 						exec.next = se;
@@ -149,6 +153,7 @@ public class ExecutionPlan {
 								// create script execution that follows synch point
 								ScriptExecution se = new ScriptExecution(++stepId);
 								se.script = script;
+								se.scriptCollection = sc;
 
 								nextExecs.add(se);
 								_steps.add(se);
@@ -167,6 +172,7 @@ public class ExecutionPlan {
 
 							ScriptExecution se = new ScriptExecution(++stepId);
 							se.script = script;
+							se.scriptCollection = sc;
 
 							f.branches.add(se);
 							nextExecs.add(se);
@@ -198,8 +204,8 @@ public class ExecutionPlan {
 	/**
 	 * run plan
 	 */
-	public void execute() {
-		_startStep.execute();
+	public void execute(Dispatcher dispatcher) {
+		_startStep.execute(dispatcher);
 	}
 
 

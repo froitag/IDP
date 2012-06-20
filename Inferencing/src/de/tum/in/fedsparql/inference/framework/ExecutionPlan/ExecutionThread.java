@@ -3,18 +3,20 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
 
 
-public class ExecutionThread extends Thread {
+class ExecutionThread extends Thread {
 
 	public ExecutionStep executionStep;
+	public Dispatcher dispatcher;
 
-	public ExecutionThread(ExecutionStep step) {
+	public ExecutionThread(ExecutionStep step, Dispatcher dispatcher) {
 		this.executionStep = step;
+		this.dispatcher = dispatcher;
 	}
 
 
 	@Override
 	public void run() {
-		executionStep.execute();
+		this.executionStep.execute(this.dispatcher);
 	}
 
 

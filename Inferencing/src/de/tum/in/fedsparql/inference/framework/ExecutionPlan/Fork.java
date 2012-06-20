@@ -3,8 +3,6 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionThread;
-
 
 /**
  * Fork, splits execution up into multiple parallel executions.
@@ -38,7 +36,7 @@ public class Fork extends ExecutionStep {
 	 * @throws InterruptedException
 	 */
 	@Override
-	void execute() {
+	void execute(Dispatcher dispatcher) {
 		System.out.println(this);
 
 		/*
@@ -51,10 +49,10 @@ public class Fork extends ExecutionStep {
 
 		// spawn new threads
 		for (ExecutionStep step: tempBranches) {
-			new ExecutionThread(step).start();
+			new ExecutionThread(step, dispatcher).start();
 		}
 
 		// continue this thread
-		firstBranch.execute();
+		firstBranch.execute(dispatcher);
 	}
 }

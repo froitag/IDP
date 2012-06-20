@@ -3,8 +3,6 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionThread;
-
 
 /**
  * Synchronization Point.
@@ -42,7 +40,7 @@ public class SynchronizationPoint extends ExecutionStep {
 	 * merge execution
 	 */
 	@Override
-	void execute() {
+	void execute(Dispatcher dispatcher) {
 		System.out.println(this);
 
 		if (Thread.currentThread() instanceof ExecutionThread) {
@@ -57,7 +55,7 @@ public class SynchronizationPoint extends ExecutionStep {
 				// continue execution
 				System.out.println("SYNC continue");
 				if (this.next != null) {
-					this.next.execute();
+					this.next.execute(dispatcher);
 				} else {
 					Thread.currentThread().interrupt();
 				}

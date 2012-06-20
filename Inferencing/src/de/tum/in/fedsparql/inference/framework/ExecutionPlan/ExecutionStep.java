@@ -18,6 +18,6 @@ public abstract class ExecutionStep {
 		return _ID+"#"+this.getClass().getSimpleName();
 	}
 
-	abstract void execute();
+	abstract void execute(Dispatcher dispatcher);
 
 }

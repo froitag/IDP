@@ -28,10 +28,10 @@ public class Start extends ExecutionStep {
 	 * start execution
 	 */
 	@Override
-	void execute() {
+	void execute(Dispatcher dispatcher) {
 		System.out.println("START");
 
 		// start execution in new thread
-		new ExecutionThread(this.next).start();
+		new ExecutionThread(this.next, dispatcher).start();
 	}
 }

@@ -16,8 +16,8 @@ public class Finish extends SynchronizationPoint {
 	 * terminate execution
 	 */
 	@Override
-	void execute() {
-		super.execute();
+	void execute(Dispatcher dispatcher) {
+		super.execute(dispatcher);
 
 		if (_doneSteps.containsAll(this.waitFor)) {
 			System.out.println("FINISH");
