@@ -273,61 +273,144 @@ public class ScriptCollection {
 	//		return this.dependsOn(script, set);
 	//	}
 
-
 	/**
-	 * removes the dependency of `script` to `dependency`.
-	 * => "`script` does not depend on `dependency`"
+	 * manually adds a dependency
+	 * => "`script` depends on `dependency`"
 	 * 
 	 * @param script
 	 * @param dependency
+	 * @return this for fluent interface
 	 */
-	public void removeDependency(Script script, Script dependency) {
+	public ScriptCollection addDependency(Script script, Script dependency) {
+		// form set to pass addDependencies(Map)
+		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
+		Set<Script> set = new HashSet<Script>();
+		set.add(dependency);
+		deps.put(script, set);
+
+		// forward to addDependencies(Map)
+		this.addDependencies(deps);
+
+		return this;
+	}
+	/**
+	 * adds the dependencies of the scripts to their regarding set of scripts
+	 * 
+	 * @param dependencies
+	 * @return this for fluent interface
+	 */
+	public ScriptCollection addDependencies(Map<Script,Set<Script>> dependencies) {
+		// add dependencies to the _addedDependencies map
+		for (Script script: dependencies.keySet()) {
+			if (!_addedDependencies.containsKey(script)) {
+				_addedDependencies.put(script, new HashSet<Script>());
+			}
+
+			_addedDependencies.get(script).addAll(dependencies.get(script));
+
+			// remove the deps from the manually removedDependencies map
+			for (Script dep: dependencies.get(script)) {
+				if (_removedDependencies.containsKey(script)) {
+					_removedDependencies.get(script).remove(dep);
+				}
+			}
+		}
+
+		// recalculate inherited dependencies etc.
+		try {
+			_calculateDependencies();
+		} catch (CircularDependencyException e) {
+		}
+
+		return this;
+	}
+
+	/**
+	 * removes the dependency of `script` to `dependency`.
+	 * => "`script` doesn't depend on `dependency`"
+	 * 
+	 * @param script
+	 * @param dependency
+	 * @return this for fluent interface
+	 */
+	public ScriptCollection removeDependency(Script script, Script dependency) {
 		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
 		Set<Script> set = new HashSet<Script>();
 		set.add(dependency);
 		deps.put(script, set);
 
 		this.removeDependencies(deps);
+
+		return this;
 	}
 	/**
 	 * removes the dependencies of the scripts to their regarding set of scripts
+	 * 
 	 * @param dependencies
+	 * @return this for fluent interface
 	 */
-	public void removeDependencies(Map<Script,Set<Script>> dependencies) {
+	public ScriptCollection removeDependencies(Map<Script,Set<Script>> dependencies) {
+		// add dependencies to the _removedDependencies map
 		for (Script script: dependencies.keySet()) {
 			if (!_removedDependencies.containsKey(script)) {
 				_removedDependencies.put(script, new HashSet<Script>());
 			}
 
 			_removedDependencies.get(script).addAll(dependencies.get(script));
+
+			// remove the deps from the manually addedDependencies map
+			for (Script dep: dependencies.get(script)) {
+				if (_addedDependencies.containsKey(script)) {
+					_addedDependencies.get(script).remove(dep);
+				}
+			}
 		}
 
+		// recalculate inherited dependencies
 		try {
 			_calculateDependencies();
 		} catch (CircularDependencyException e) {
-
 		}
-	}
 
+		return this;
+	}
 	/**
 	 * removes all dependencies to `dependency`
 	 * 
 	 * @param dependency
+	 * @return this for fluent interface
 	 */
-	public void removeDependency(Script dependency) {
+	public ScriptCollection removeDependency(Script dependency) {
+		// forward to addDependency(Script,Script) for each script of this collection
+		// TODO: better: form Map and pass to addDependency(Map) => only 1x _calculateDependencies call
 		for (Script script: _scripts) {
 			this.removeDependency(script, dependency);
 		}
+
+		return this;
 	}
 
 
 
-	public void printScripts() {
+
+	/**
+	 * prints all scripts of the collection
+	 * 
+	 * @return this for fluent interface
+	 */
+	public ScriptCollection printScripts() {
 		for (Script script: _scripts) {
 			System.out.println("Script \""+script.id+"\": \t"+script.inputDatabases+"\t->\t"+script.outputDatabases);
 		}
+
+		return this;
 	}
-	public void printDirectDependencies() {
+	/**
+	 * prints all direct dependencies
+	 * 
+	 * @return this for fluent interface
+	 */
+	public ScriptCollection printDirectDependencies() {
 		/**
 			r1:[]
 			r2:[r5]
@@ -341,8 +424,15 @@ public class ScriptCollection {
 			System.out.print(_scriptDependencies.get(script));
 			System.out.println();
 		}
+
+		return this;
 	}
-	public void printInheritedDependencies() {
+	/**
+	 * prints all inherited dependencies
+	 * 
+	 * @return this for fluent interface
+	 */
+	public ScriptCollection printInheritedDependencies() {
 		/**
 			r1:[]
 			r2:[r5]
@@ -356,6 +446,8 @@ public class ScriptCollection {
 			System.out.print(_scriptInheritedDependencies.get(script));
 			System.out.println();
 		}
+
+		return this;
 	}
 	//	public void printIndependentlyProcessableScripts() {
 	//		/**
@@ -424,7 +516,7 @@ public class ScriptCollection {
 				if (!_outputRelations.containsKey(iDB)) continue;
 
 				for (Script dependency: _outputRelations.get(iDB)) {
-					if (_removedDependencies.containsKey(script) && _removedDependencies.get(script).contains(dependency)) continue; // ignore the manually removed dependencies
+					if (_isManuallyRemovedDependency(script, dependency)) continue; // ignore the manually removed dependencies
 
 
 					_scriptDependencies.get(script).add(dependency);
@@ -434,6 +526,17 @@ public class ScriptCollection {
 					}
 					_scriptDependenciesVV.get(dependency).add(script);
 				}
+			}
+		}
+		// add manually added dependencies
+		for (Script script: _addedDependencies.keySet()) {
+			if (!_scripts.contains(script)) continue;
+
+			for (Script dep: _addedDependencies.get(script)) {
+				if (!_scripts.contains(dep)) continue;
+
+				_scriptDependencies.get(script).add(dep);
+				_scriptDependenciesVV.get(dep).add(script);
 			}
 		}
 
@@ -459,6 +562,8 @@ public class ScriptCollection {
 
 				// add the current script as dependency to all scripts in the current path
 				for (Script pathEntry: qPath) {
+					if (_isManuallyRemovedDependency(pathEntry, script)) continue; // ignore the manually removed dependencies
+
 					_scriptInheritedDependencies.get(pathEntry).add(qScript);
 					_scriptInheritedDependenciesVV.get(qScript).add(pathEntry);
 				}
@@ -527,6 +632,10 @@ public class ScriptCollection {
 			this.path = path;
 		}
 	}
+	protected boolean _isManuallyRemovedDependency(Script script, Script dependency) {
+		return (_removedDependencies.containsKey(script) && _removedDependencies.get(script).contains(dependency));
+		// ignore the manually removed dependencies
+	}
 	/**
 	 * checks if two scripts depend on each other.
 	 * -> returns true if either s1 depends on s2 or s2 depends on s1
@@ -546,9 +655,20 @@ public class ScriptCollection {
 	/* protected member */
 	/** this collection's scripts */
 	protected Set<Script> _scripts=new HashSet<Script>();
-	/** manually removed dependencies */
+	/**
+	 *  manually removed dependencies.
+	 *  Script => Set<Dependencies>
+	 */
 	protected Map<Script,Set<Script>> _removedDependencies=new HashMap<Script,Set<Script>>();
+	/**
+	 *  manually added dependencies.
+	 *  Script => Set<Dependencies>
+	 */
+	protected Map<Script,Set<Script>> _addedDependencies=new HashMap<Script,Set<Script>>();
 
+
+
+	/* cached stuff, generated from _calculateDependencies */
 	/** database<->script relations Map(outputDatabase => Set<Scripts> which write into it) */
 	protected Map<Database,Set<Script>> _outputRelations=new HashMap<Database,Set<Script>>();
 	/** script dependencies, Map(Script => Set<Scripts> which the key script directly depends on) */
