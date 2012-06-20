@@ -12,13 +12,19 @@ import java.util.Set;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 import de.tum.in.fedsparql.inference.io.Database;
 
+/**
+ * Manages a collection of de.tum.in.fedsparql.inference.framework.Script.
+ * Is immutable after creation (except the manual removal/adding of dependencies).
+ */
 public class ScriptCollection {
 
 	/* constructors */
 	/**
-	 * constructor
-	 * @param scripts
-	 * @throws CircularDependencyException
+	 * Constructor.
+	 * Initializes a ScriptCollection with the given Scripts.
+	 * 
+	 * @param scripts The collection's Scripts.
+	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
 	public ScriptCollection(Script[] scripts) throws CircularDependencyException {
 		for (Script script: scripts) {
@@ -28,11 +34,12 @@ public class ScriptCollection {
 		_calculateDependencies();
 	}
 	/**
-	 * constructor
+	 * Constructor.
+	 * Initializes a ScriptCollection with given Scripts and set of dependencies which shall be ignored.
 	 * 
-	 * @param scripts
+	 * @param scripts The collection's Scripts.
 	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
-	 * @throws CircularDependencyException
+	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
 	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) throws CircularDependencyException {
 		for (Script script: scripts) {
@@ -43,7 +50,8 @@ public class ScriptCollection {
 		_calculateDependencies();
 	}
 	/**
-	 * copy constructor
+	 * Copy Constructor.
+	 * Clones a given ScriptCollection.
 	 * 
 	 * @param scriptCollection
 	 * @throws CircularDependencyException
@@ -225,7 +233,7 @@ public class ScriptCollection {
 	//	}
 	/**
 	 * returns all scripts of this collection that do not depend on other scripts (may be used to start processing).
-	 * returns a set of copies that can be manipulated without changing the ScriptCollection.
+	 * returns a set of copies that can be manipulated without changing the ScriptCollection itself.
 	 */
 	public Set<Script> getIndependentScripts() {
 		Set<Script> ret = new HashSet<Script>();
@@ -238,32 +246,32 @@ public class ScriptCollection {
 
 		return ret;
 	}
-	/**
-	 * returns true if script depends on scripts.
-	 * all scripts must be known to the collection (passed at construction).
-	 *
-	 * @param script
-	 * @param scripts
-	 */
-	public boolean dependsOn(Script script, Set<Script> scripts) {
-		if (script==null || !_scriptInheritedDependencies.containsKey(script)) return false;
-
-		for (Script dependency: scripts) {
-			if (!_scriptInheritedDependencies.containsKey(dependency)) continue;
-
-			if (_scriptInheritedDependencies.get(script).contains(dependency)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-	public boolean dependsOn(Script script, Script dependency) {
-		Set<Script> set = new HashSet<Script>();
-		set.add(dependency);
-
-		return this.dependsOn(script, set);
-	}
+	//	/**
+	//	 * returns true if script depends on scripts.
+	//	 * all scripts must be known to the collection (passed at construction).
+	//	 *
+	//	 * @param script
+	//	 * @param scripts
+	//	 */
+	//	public boolean dependsOn(Script script, Set<Script> scripts) {
+	//		if (script==null || !_scriptInheritedDependencies.containsKey(script)) return false;
+	//
+	//		for (Script dependency: scripts) {
+	//			if (!_scriptInheritedDependencies.containsKey(dependency)) continue;
+	//
+	//			if (_scriptInheritedDependencies.get(script).contains(dependency)) {
+	//				return true;
+	//			}
+	//		}
+	//
+	//		return false;
+	//	}
+	//	public boolean dependsOn(Script script, Script dependency) {
+	//		Set<Script> set = new HashSet<Script>();
+	//		set.add(dependency);
+	//
+	//		return this.dependsOn(script, set);
+	//	}
 
 
 	/**
@@ -538,17 +546,19 @@ public class ScriptCollection {
 	/* protected member */
 	/** this collection's scripts */
 	protected Set<Script> _scripts=new HashSet<Script>();
+	/** manually removed dependencies */
 	protected Map<Script,Set<Script>> _removedDependencies=new HashMap<Script,Set<Script>>();
 
 	/** database<->script relations Map(outputDatabase => Set<Scripts> which write into it) */
 	protected Map<Database,Set<Script>> _outputRelations=new HashMap<Database,Set<Script>>();
-	/** script dependencies Map(Script => Set<Scripts> which the first script directly depends on) */
+	/** script dependencies, Map(Script => Set<Scripts> which the key script directly depends on) */
 	protected Map<Script,Set<Script>> _scriptDependencies;
+	/** script dependencies vice versa, Map(Script => Set<Scripts> which depend on the key script) */
 	protected Map<Script,Set<Script>> _scriptDependenciesVV;
 	/** inherited dependencies Map(Script => Set<Scripts> which the first script depends on) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependencies;
 	/** inherited dependencies vice versa, Map(Script => Set<Scripts> which depend on the first script) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependenciesVV;
-	/** sets of scripts that may independently be processed */
+	///** sets of scripts that may independently be processed */
 	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }

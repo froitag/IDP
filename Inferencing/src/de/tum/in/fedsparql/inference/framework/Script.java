@@ -53,7 +53,7 @@ public class Script {
 	}
 	/**
 	 * Copy Constructor.
-	 * Creates a copy of a script.
+	 * Clones a given script.
 	 * 
 	 * @param script
 	 */

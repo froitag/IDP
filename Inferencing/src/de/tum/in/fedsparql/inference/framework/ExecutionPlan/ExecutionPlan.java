@@ -176,29 +176,6 @@ public class ExecutionPlan {
 
 					exec.next = f;
 				}
-
-				//
-				//				Set<Script> dependentScripts=new HashSet<Script>();
-				//				for (Script script: availableScripts) {
-				//					if (_sc.dependsOn(script, exec.script)) {
-				//						dependentScripts.add(script);
-				//					}
-				//				}
-				//
-				//
-				//				processableScripts = _sc.getIndependentScripts();
-				//				processableScripts.removeAll(done_scripts);
-
-				//				Set<Script> nextScripts=new HashSet<Script>();
-				//				for (Script script: processableScripts) {
-				//					if (_sc.dependsOn(script, exec.script)) {
-				//						nextScripts.add(script);
-				//					}
-				//				}
-				//
-				//				if (nextScripts.size() == 0) {
-				//
-				//				}
 			}
 			currentExecs = nextExecs;
 		}
