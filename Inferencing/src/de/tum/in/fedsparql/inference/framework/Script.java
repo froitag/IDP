@@ -36,6 +36,9 @@ public class Script {
 	/*
 	 * constructors
 	 */
+	public Script(String id) {
+		this(id, new Database[]{}, new Database[]{}, "");
+	}
 	/**
 	 * Constructor.
 	 * Initializes a Script.

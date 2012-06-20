@@ -90,7 +90,7 @@ public class Main {
 			System.out.println();
 
 			// execute execution plan
-			Scheduler dispatcher = new SimpleScheduler();
+			Scheduler dispatcher = new SimpleScheduler(scripts);
 			System.out.println("EXECUTING:");
 			p.execute(dispatcher);
 		} catch (CircularDependencyException e) {
