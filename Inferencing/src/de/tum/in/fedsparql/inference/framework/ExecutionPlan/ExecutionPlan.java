@@ -212,8 +212,7 @@ public class ExecutionPlan {
 		_startStep.execute(dispatcher);
 	}
 
-	public byte[] generatePNG() throws IOException {
-		ByteArrayOutputStream png = new ByteArrayOutputStream();
+	public byte[] generatePNG() {
 
 		String source = "";
 		source += "@startuml\n";
@@ -233,6 +232,13 @@ public class ExecutionPlan {
 		//		while (nextSteps.size() != 0) {
 		//
 		//		}
+		//		Queue<ExecutionStep> queue = new LinkedList<ExecutionStep>();
+		//		queue.add(this.getStartStep());
+		//
+		//		while (!queue.isEmpty()) {
+		//			ExecutionStep curStep = queue.remove();
+		//			String curStepName ="";
+		//		}
 
 
 		source += "[*] -right-> First\n";
@@ -243,11 +249,19 @@ public class ExecutionPlan {
 		source += "@enduml\n";
 
 
-		SourceStringReader reader = new SourceStringReader(source);
-		// Write the first image to "png"
-		String desc = reader.generateImage(png);
-		// Return a null string if no generation
-		return desc!=null ? png.toByteArray() : null;
+		try {
+			SourceStringReader reader = new SourceStringReader(source);
+			ByteArrayOutputStream png = new ByteArrayOutputStream();
+			String desc = reader.generateImage(png);
+
+			// Return a null string if no generation
+			if (desc != null) {
+				return png.toByteArray();
+			}
+		} catch (IOException e) {
+		}
+
+		return null;
 	}
 
 
