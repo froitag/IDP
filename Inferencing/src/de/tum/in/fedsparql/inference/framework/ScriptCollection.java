@@ -326,6 +326,42 @@ public class ScriptCollection {
 	}
 
 	/**
+	 * Gets all manually added dependencies.
+	 * 
+	 * @return Map<Script => Set<Dependencies>>
+	 */
+	public Map<Script,Set<Script>> getManuallyAddedDependencies() {
+		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
+
+		for (Script script: _addedDependencies.keySet()) {
+			ret.put(script, new HashSet<Script>());
+			for (Script dependency: _addedDependencies.get(script)) {
+				ret.get(script).add(dependency);
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Gets all manually removed dependencies.
+	 * 
+	 * @return Map<Script => Set<Dependencies>>
+	 */
+	public Map<Script,Set<Script>> getManuallyRemovedDependencies() {
+		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
+
+		for (Script script: _removedDependencies.keySet()) {
+			ret.put(script, new HashSet<Script>());
+			for (Script dependency: _removedDependencies.get(script)) {
+				ret.get(script).add(dependency);
+			}
+		}
+
+		return ret;
+	}
+
+	/**
 	 * removes the dependency of `script` to `dependency`.
 	 * => "`script` doesn't depend on `dependency`"
 	 * 
