@@ -56,6 +56,7 @@ public class Main {
 				".."
 				);
 
+
 		ScriptCollection scripts;
 		try {
 			// create script collection
