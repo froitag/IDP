@@ -20,6 +20,17 @@ public abstract class ExecutionStep {
 		return _ID+"#"+this.getClass().getSimpleName();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ExecutionStep) {
+			ExecutionStep step = (ExecutionStep)obj;
+			System.out.println(_ID+"="+_ID);
+			return step._ID.equals(this._ID);
+		}
+
+		return false;
+	}
+
 	abstract void execute(Scheduler dispatcher);
 
 }
