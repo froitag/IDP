@@ -1,28 +1,30 @@
 package de.tum.in.fedsparql.inference.framework.GUI;
 
+import java.awt.CardLayout;
 import java.awt.EventQueue;
-import javax.swing.JFrame;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.factories.FormFactory;
-
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
-import de.tum.in.fedsparql.inference.io.Database;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import javax.swing.DefaultListModel;
-import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import java.awt.CardLayout;
-import java.util.ArrayList;
-import java.util.HashSet;
-import javax.swing.JList;
+import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
+
+import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.io.Database;
 
 public class GUI {
 
@@ -34,7 +36,7 @@ public class GUI {
 	private static ArrayList<Database> databaseList = new ArrayList<Database>();
 	private ScriptCollection scriptCollection;
 	private HashSet<EdgeClass> deletedEdges = new HashSet<EdgeClass>();
-	
+
 	JButton btnShowGraph;
 	JButton btnShowPlan;
 
@@ -42,10 +44,14 @@ public class GUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		databaseList.add(new TestDatabase("schwul"));
-		databaseList.add(new TestDatabase("schwuler"));
-		databaseList.add(new TestDatabase("domi"));
+		databaseList.add(new TestDatabase("a"));
+		databaseList.add(new TestDatabase("b"));
+		databaseList.add(new TestDatabase("c"));
+		databaseList.add(new TestDatabase("d"));
+		databaseList.add(new TestDatabase("e"));
+		databaseList.add(new TestDatabase("f"));
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					GUI window = new GUI();
@@ -69,6 +75,7 @@ public class GUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
 		frame.setBounds(100, 100, 696, 438);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
@@ -79,7 +86,7 @@ public class GUI {
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,},
-			new RowSpec[] {
+				new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
@@ -87,9 +94,10 @@ public class GUI {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,}));
-		
+
 		JButton btnNewScript = new JButton("New script");
 		btnNewScript.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				ScriptForm form = new ScriptForm(GUI.this);
 				scriptFormList.add(form);
@@ -98,9 +106,10 @@ public class GUI {
 			}
 		});
 		frame.getContentPane().add(btnNewScript, "2, 2");
-		
+
 		JButton btnDeleteScript = new JButton("Delete script");
 		btnDeleteScript.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selected = list.getSelectedIndex();
 				if (selected != -1) {
@@ -112,23 +121,24 @@ public class GUI {
 			}
 		});
 		frame.getContentPane().add(btnDeleteScript, "4, 2");
-		
+
 		final JLayeredPane layeredPane = new JLayeredPane();
 		layeredPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		frame.getContentPane().add(layeredPane, "6, 2, 1, 5, fill, fill");
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		frame.getContentPane().add(scrollPane, "2, 4, 3, 1, fill, fill");
-		
+
 		final JList<String> list = new JList<String>(dlm);
 		scrollPane.setViewportView(list);
 		this.layeredPane = layeredPane;
 		this.list = list;
 		layeredPane.setLayout(new CardLayout(0, 0));
-		
+
 		btnShowGraph = new JButton("Show Graph");
 		btnShowGraph.setEnabled(false);
 		btnShowGraph.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				list.clearSelection();
 				GraphView graph = new GraphView(GUI.this);
@@ -138,10 +148,11 @@ public class GUI {
 			}
 		});
 		frame.getContentPane().add(btnShowGraph, "2, 6");
-		
+
 		btnShowPlan = new JButton("Show Plan");
 		btnShowPlan.setEnabled(false);
 		btnShowPlan.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				list.clearSelection();
 				PlanView plan = new PlanView(GUI.this);
@@ -151,7 +162,7 @@ public class GUI {
 			}
 		});
 		frame.getContentPane().add(btnShowPlan, "4, 6");
-		
+
 		list.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
@@ -164,7 +175,7 @@ public class GUI {
 			}
 		});
 	}
-	
+
 	void refreshList() {
 		int selected = list.getSelectedIndex();
 		dlm.clear();
@@ -184,19 +195,19 @@ public class GUI {
 	public JLayeredPane getLayeredPane() {
 		return layeredPane;
 	}
-	
+
 	public JList<String> getList() {
 		return list;
 	}
-	
+
 	public ArrayList<ScriptForm> getScriptFormList() {
 		return scriptFormList;
 	}
-	
+
 	ArrayList<Database> getDatabaseList() {
 		return databaseList;
 	}
-	
+
 	public ScriptCollection getScriptCollection() {
 		return scriptCollection;
 	}
@@ -204,7 +215,7 @@ public class GUI {
 	public void setScriptCollection(ScriptCollection scriptCollection) {
 		this.scriptCollection = scriptCollection;
 	}
-	
+
 	public HashSet<EdgeClass> getDeletedEdges() {
 		return deletedEdges;
 	}
@@ -212,5 +223,5 @@ public class GUI {
 	public void setDeletedEdges(HashSet<EdgeClass> deletedEdges) {
 		this.deletedEdges = deletedEdges;
 	}
-	
+
 }
