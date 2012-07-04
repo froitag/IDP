@@ -3,6 +3,7 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -26,6 +27,9 @@ public class ExecutionPlan {
 	 * @throws CircularDependencyException
 	 */
 	public ExecutionPlan(ScriptCollection sc) throws CircularDependencyException {
+		if (sc.containsCycle()) {
+			throw new CircularDependencyException("ScriptCollection contains circular dependencies! Please remove all cycles..");
+		}
 		_sc = new ScriptCollection(sc);
 
 		int stepId=0;
@@ -220,55 +224,56 @@ public class ExecutionPlan {
 
 		String source = "";
 		source += "@startuml\n";
-		//		source += "(*) --> \"Initialisation\"\n";
-		//		source += "if \"\" then\n";
-		//		source += "  -->[true] \"Some Activity\"\n";
-		//		source += "  --> \"Another activity\"\n";
-		//		source += "  -right-> (*)\n";
-		//		source += "else\n";
-		//		source += "  ->[false] \"Something else\"\n";
-		//		source += "  -->[Ending process] (*)\n";
-		//		source += "endif\n";
 
-		//		Map<ExecutionStep,String> nextSteps = new HashMap<ExecutionStep,String>();
-		//		nextSteps.put(this.getStartStep(), "[*]");
-		//
-		//		while (nextSteps.size() != 0) {
-		//
-		//		}
+		Queue<QueueEntry> queue = new LinkedList<QueueEntry>();
+		queue.add(new QueueEntry(this.getStartStep(),Arrays.asList(new ExecutionStep[0])));
 
-		Queue<ExecutionStep> queue = new LinkedList<ExecutionStep>();
-		queue.add(this.getStartStep());
-
-		List<String> lastStepNames=new ArrayList<String>();
+		Set<String> alreadyAdded = new HashSet<String>();
 		while (!queue.isEmpty()) {
-			ExecutionStep curStep = queue.remove();
+			QueueEntry curStep = queue.remove();
 
-			if (curStep instanceof Start) {
-				lastStepNames.add("[*]");
-				queue.add(((Start)curStep).next);
-			} else if (curStep instanceof Fork) {
-				for (ExecutionStep nextStep: ((Fork)curStep).branches) {
+			List<QueueEntry> toAdd=new ArrayList<QueueEntry>();
 
-					queue.add(nextStep);
+
+			if (curStep.step instanceof Start) {
+				toAdd.add(new QueueEntry(((Start)curStep.step).next, Arrays.asList(new ExecutionStep[]{curStep.step})));
+			} else if (curStep.step instanceof Finish) {
+				for (ExecutionStep previousStep: curStep.previousSteps) {
+					String edge = _stepToName(previousStep) + " -right-> " + _stepToName(curStep.step) + "\n";
+					if (!alreadyAdded.contains(edge)) {
+						source += edge;
+						alreadyAdded.add(edge);
+					}
 				}
-			} else if (curStep instanceof SynchronizationPoint) {
+			} else if (curStep.step instanceof Fork) {
+				Fork fork = (Fork) curStep.step;
+				for (ExecutionStep nextStep: fork.branches) {
+					toAdd.add(
+							new QueueEntry(nextStep, curStep.previousSteps)
+							);
+				}
+			} else if (curStep.step instanceof SynchronizationPoint) {
+				toAdd.add(new QueueEntry(((SynchronizationPoint)curStep.step).next, curStep.previousSteps));
+			} else if (curStep.step instanceof ScriptExecution) {
+				for (ExecutionStep previousStep: curStep.previousSteps) {
+					String edge = _stepToName(previousStep) + " --> " + _stepToName(curStep.step) + "\n";
+					if (!alreadyAdded.contains(edge)) {
+						source += edge;
+						alreadyAdded.add(edge);
+					}
+				}
 
-			} else if (curStep instanceof ScriptExecution) {
+				toAdd.add(new QueueEntry(((ScriptExecution)curStep.step).next, Arrays.asList(new ExecutionStep[]{curStep.step})));
+			}
 
-			} else if (curStep instanceof Finish) {
-
+			for (QueueEntry add: toAdd) {
+				queue.add(add);
 			}
 		}
 
 
-		source += "[*] -right-> First\n";
-		source += "First -right-> Second\n";
-		source += "First -right-> Third\n";
-		source += "Second -right-> Third\n";
-		source += "Third -right-> [*]\n";
 		source += "@enduml\n";
-
+		System.out.println(source);
 
 		try {
 			SourceStringReader reader = new SourceStringReader(source);
@@ -285,6 +290,43 @@ public class ExecutionPlan {
 		return null;
 	}
 
+	class QueueEntry {
+		public ExecutionStep step;
+		public List<ExecutionStep> previousSteps;
+		public QueueEntry(ExecutionStep step, List<ExecutionStep> previousSteps) {
+			this.step = step;
+			this.previousSteps = new ArrayList<ExecutionStep>(previousSteps);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			boolean ret=false;
+
+			if (obj instanceof QueueEntry) {
+				QueueEntry qe = (QueueEntry) obj;
+
+				ret = qe.step!=null && qe.step.equals(this.step);
+				ret = ret && qe.previousSteps!=null && qe.previousSteps.equals(this.previousSteps);
+			}
+
+			return ret;
+		}
+	}
+	protected String _stepToName(ExecutionStep step) {
+		if (step instanceof Start) {
+			return "[*]";
+		} else if (step instanceof Fork) {
+			return null;
+		} else if (step instanceof Finish) {
+			return "[*]";
+		} else if (step instanceof SynchronizationPoint) {
+			return null;
+		} else if (step instanceof ScriptExecution) {
+			return ((ScriptExecution)step).script.id;
+		}
+
+		return null;
+	}
 
 	/* protected member */
 	protected ScriptCollection _sc;

@@ -72,6 +72,7 @@ public class Main {
 					r5,
 					//					r6
 			});
+			scripts.removeDependency(new Script("r5"), new Script("r5"));
 
 			scripts.printScripts();
 			System.out.println();
