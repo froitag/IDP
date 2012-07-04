@@ -7,6 +7,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
 
+import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.io.Database;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -20,7 +21,7 @@ import javax.swing.event.ListSelectionListener;
 
 import java.awt.CardLayout;
 import java.util.ArrayList;
-
+import java.util.HashSet;
 import javax.swing.JList;
 
 public class GUI {
@@ -31,6 +32,11 @@ public class GUI {
 	private JList<String> list;
 	private ArrayList<ScriptForm> scriptFormList = new ArrayList<ScriptForm>();
 	private static ArrayList<Database> databaseList = new ArrayList<Database>();
+	private ScriptCollection scriptCollection;
+	private HashSet<EdgeClass> deletedEdges = new HashSet<EdgeClass>();
+	
+	JButton btnShowGraph;
+	JButton btnShowPlan;
 
 	/**
 	 * Launch the application.
@@ -120,7 +126,8 @@ public class GUI {
 		this.list = list;
 		layeredPane.setLayout(new CardLayout(0, 0));
 		
-		JButton btnShowGraph = new JButton("Show Graph");
+		btnShowGraph = new JButton("Show Graph");
+		btnShowGraph.setEnabled(false);
 		btnShowGraph.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				list.clearSelection();
@@ -131,6 +138,19 @@ public class GUI {
 			}
 		});
 		frame.getContentPane().add(btnShowGraph, "2, 6");
+		
+		btnShowPlan = new JButton("Show Plan");
+		btnShowPlan.setEnabled(false);
+		btnShowPlan.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				list.clearSelection();
+				PlanView plan = new PlanView(GUI.this);
+				layeredPane.removeAll();
+				layeredPane.add(plan);
+				layeredPane.validate();
+			}
+		});
+		frame.getContentPane().add(btnShowPlan, "4, 6");
 		
 		list.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -152,6 +172,13 @@ public class GUI {
 			dlm.addElement(form.getTextField());
 		}
 		list.setSelectedIndex(selected);
+		if (!scriptFormList.isEmpty()) {
+			btnShowGraph.setEnabled(true);
+			btnShowPlan.setEnabled(true);
+		} else {
+			btnShowGraph.setEnabled(false);
+			btnShowPlan.setEnabled(false);
+		}
 	}
 
 	public JLayeredPane getLayeredPane() {
@@ -168,6 +195,22 @@ public class GUI {
 	
 	ArrayList<Database> getDatabaseList() {
 		return databaseList;
+	}
+	
+	public ScriptCollection getScriptCollection() {
+		return scriptCollection;
+	}
+
+	public void setScriptCollection(ScriptCollection scriptCollection) {
+		this.scriptCollection = scriptCollection;
+	}
+	
+	public HashSet<EdgeClass> getDeletedEdges() {
+		return deletedEdges;
+	}
+
+	public void setDeletedEdges(HashSet<EdgeClass> deletedEdges) {
+		this.deletedEdges = deletedEdges;
 	}
 	
 }

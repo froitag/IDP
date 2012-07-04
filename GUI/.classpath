@@ -14,6 +14,8 @@
 	<classpathentry kind="lib" path="lib/jung-algorithms-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung-api-2.0.1.jar" sourcepath="lib/jung-api-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung-graph-impl-2.0.1.jar" sourcepath="lib/jung-graph-impl-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jung-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-jai-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung-jai-samples-2.0.1.jar"/>
