@@ -7,7 +7,6 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
 
-import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.io.Database;
 import javax.swing.JButton;
@@ -23,9 +22,6 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.CardLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JList;
 
 public class GUI {
