@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 import de.tum.in.fedsparql.inference.io.Database;
 
 /**
@@ -24,7 +23,6 @@ public class ScriptCollection {
 	 * Initializes a ScriptCollection with the given Scripts.
 	 * 
 	 * @param scripts The collection's Scripts.
-	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
 	public ScriptCollection(Script[] scripts) {
 		for (Script script: scripts) {
@@ -39,7 +37,6 @@ public class ScriptCollection {
 	 * 
 	 * @param scripts The collection's Scripts.
 	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
-	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
 	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) {
 		for (Script script: scripts) {
@@ -54,9 +51,8 @@ public class ScriptCollection {
 	 * Clones a given ScriptCollection.
 	 * 
 	 * @param scriptCollection
-	 * @throws CircularDependencyException
 	 */
-	public ScriptCollection(ScriptCollection scriptCollection) throws CircularDependencyException {
+	public ScriptCollection(ScriptCollection scriptCollection) {
 		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getManuallyRemovedDependencies());
 	}
 
@@ -526,7 +522,6 @@ public class ScriptCollection {
 	/**
 	 * calculate the script dependencies
 	 * @return this for fluent interface
-	 * @throws CircularDependencyException
 	 */
 	protected ScriptCollection _calculateDependencies() {
 
