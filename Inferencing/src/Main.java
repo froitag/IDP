@@ -1,4 +1,7 @@
 
+import java.io.File;
+import java.io.IOException;
+
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
@@ -88,6 +91,20 @@ public class Main {
 			}
 
 			System.out.println();
+			System.out.println();
+			System.out.println();
+
+			// create PNG
+			String outputPNG = "graph.png";
+			System.out.println("GENERATING IMAGE: " + outputPNG);
+			try {
+				if (!p.generatePNG(new File(outputPNG))) {
+					System.out.println("ERROR");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println();
 			System.out.println();
 

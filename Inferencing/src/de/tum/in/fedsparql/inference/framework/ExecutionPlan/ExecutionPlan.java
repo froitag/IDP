@@ -1,10 +1,15 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.sourceforge.plantuml.SourceStringReader;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
@@ -207,6 +212,29 @@ public class ExecutionPlan {
 	 */
 	public void execute(Scheduler dispatcher) {
 		_startStep.execute(dispatcher);
+	}
+
+	public boolean generatePNG(File outputPng) throws IOException {
+		OutputStream png = new FileOutputStream(outputPng);
+		String source = "";
+		source += "@startuml\n";
+		source += "(*) --> \"Initialisation\"\n";
+		source += "if \"Some Test\" then\n";
+		source += "  -->[true] \"Some Activity\"\n";
+		source += "  --> \"Another activity\"\n";
+		source += "  -right-> (*)\n";
+		source += "else\n";
+		source += "  ->[false] \"Something else\"\n";
+		source += "  -->[Ending process] (*)\n";
+		source += "endif\n";
+		source += "\n@enduml\n";
+
+
+		SourceStringReader reader = new SourceStringReader(source);
+		// Write the first image to "png"
+		String desc = reader.generateImage(png);
+		// Return a null string if no generation
+		return desc!=null;
 	}
 
 
