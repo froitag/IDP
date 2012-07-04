@@ -194,5 +194,4 @@ public class GraphView extends JPanel {
 		vv.getRenderContext().setEdgeStrokeTransformer(edgeStrokeTransformer);
 
 	}
-
 }
