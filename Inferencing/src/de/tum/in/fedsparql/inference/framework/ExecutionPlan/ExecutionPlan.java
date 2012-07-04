@@ -27,6 +27,9 @@ public class ExecutionPlan {
 	 * @throws CircularDependencyException
 	 */
 	public ExecutionPlan(ScriptCollection sc) throws CircularDependencyException {
+		if (sc.containsCycle()) {
+			throw new CircularDependencyException("ScriptCollection contains circular dependencies! Please remove all cycles..");
+		}
 		_sc = new ScriptCollection(sc);
 
 		int stepId=0;
@@ -221,22 +224,6 @@ public class ExecutionPlan {
 
 		String source = "";
 		source += "@startuml\n";
-		//		source += "(*) --> \"Initialisation\"\n";
-		//		source += "if \"\" then\n";
-		//		source += "  -->[true] \"Some Activity\"\n";
-		//		source += "  --> \"Another activity\"\n";
-		//		source += "  -right-> (*)\n";
-		//		source += "else\n";
-		//		source += "  ->[false] \"Something else\"\n";
-		//		source += "  -->[Ending process] (*)\n";
-		//		source += "endif\n";
-
-		//		Map<ExecutionStep,String> nextSteps = new HashMap<ExecutionStep,String>();
-		//		nextSteps.put(this.getStartStep(), "[*]");
-		//
-		//		while (nextSteps.size() != 0) {
-		//
-		//		}
 
 		Queue<QueueEntry> queue = new LinkedList<QueueEntry>();
 		queue.add(new QueueEntry(this.getStartStep(),Arrays.asList(new ExecutionStep[0])));
@@ -285,11 +272,6 @@ public class ExecutionPlan {
 		}
 
 
-		/*source += "[*] -right-> First\n";
-		source += "First -right-> Second\n";
-		source += "First -right-> Third\n";
-		source += "Second -right-> Third\n";
-		source += "Third -right-> [*]\n";*/
 		source += "@enduml\n";
 		System.out.println(source);
 

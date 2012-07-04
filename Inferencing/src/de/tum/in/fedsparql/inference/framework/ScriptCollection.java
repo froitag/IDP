@@ -26,7 +26,7 @@ public class ScriptCollection {
 	 * @param scripts The collection's Scripts.
 	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
-	public ScriptCollection(Script[] scripts) throws CircularDependencyException {
+	public ScriptCollection(Script[] scripts) {
 		for (Script script: scripts) {
 			_addScript(script);
 		}
@@ -41,7 +41,7 @@ public class ScriptCollection {
 	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
 	 * @throws CircularDependencyException If the given Scripts have circular dependencies.
 	 */
-	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) throws CircularDependencyException {
+	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) {
 		for (Script script: scripts) {
 			_addScript(script);
 		}
@@ -57,7 +57,7 @@ public class ScriptCollection {
 	 * @throws CircularDependencyException
 	 */
 	public ScriptCollection(ScriptCollection scriptCollection) throws CircularDependencyException {
-		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getRemovedDependencies());
+		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getManuallyRemovedDependencies());
 	}
 
 
@@ -99,11 +99,49 @@ public class ScriptCollection {
 
 		return ret;
 	}
+
 	/**
-	 * returns all manually removed dependencies
+	 * Gets all manually added dependencies.
+	 * 
+	 * @return Map<Script => Set<Dependencies>>
 	 */
-	public Map<Script,Set<Script>> getRemovedDependencies() {
-		return new HashMap<Script,Set<Script>>(_removedDependencies);
+	public Map<Script,Set<Script>> getManuallyAddedDependencies() {
+		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
+
+		for (Script script: _addedDependencies.keySet()) {
+			ret.put(script, new HashSet<Script>());
+			for (Script dependency: _addedDependencies.get(script)) {
+				ret.get(script).add(dependency);
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Gets all manually removed dependencies.
+	 * 
+	 * @return Map<Script => Set<Dependencies>>
+	 */
+	public Map<Script,Set<Script>> getManuallyRemovedDependencies() {
+		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
+
+		for (Script script: _removedDependencies.keySet()) {
+			ret.put(script, new HashSet<Script>());
+			for (Script dependency: _removedDependencies.get(script)) {
+				ret.get(script).add(dependency);
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * states whether this ScriptCollection contains circular dependencies
+	 * @return
+	 */
+	public boolean containsCycle() {
+		return _containsCycles;
 	}
 	/**
 	 * gets a map describing the dependencies of the scripts.
@@ -317,48 +355,9 @@ public class ScriptCollection {
 		}
 
 		// recalculate inherited dependencies etc.
-		try {
-			_calculateDependencies();
-		} catch (CircularDependencyException e) {
-		}
+		_calculateDependencies();
 
 		return this;
-	}
-
-	/**
-	 * Gets all manually added dependencies.
-	 * 
-	 * @return Map<Script => Set<Dependencies>>
-	 */
-	public Map<Script,Set<Script>> getManuallyAddedDependencies() {
-		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
-
-		for (Script script: _addedDependencies.keySet()) {
-			ret.put(script, new HashSet<Script>());
-			for (Script dependency: _addedDependencies.get(script)) {
-				ret.get(script).add(dependency);
-			}
-		}
-
-		return ret;
-	}
-
-	/**
-	 * Gets all manually removed dependencies.
-	 * 
-	 * @return Map<Script => Set<Dependencies>>
-	 */
-	public Map<Script,Set<Script>> getManuallyRemovedDependencies() {
-		Map<Script,Set<Script>> ret = new HashMap<Script,Set<Script>>();
-
-		for (Script script: _removedDependencies.keySet()) {
-			ret.put(script, new HashSet<Script>());
-			for (Script dependency: _removedDependencies.get(script)) {
-				ret.get(script).add(dependency);
-			}
-		}
-
-		return ret;
 	}
 
 	/**
@@ -403,10 +402,7 @@ public class ScriptCollection {
 		}
 
 		// recalculate inherited dependencies
-		try {
-			_calculateDependencies();
-		} catch (CircularDependencyException e) {
-		}
+		_calculateDependencies();
 
 		return this;
 	}
@@ -532,13 +528,14 @@ public class ScriptCollection {
 	 * @return this for fluent interface
 	 * @throws CircularDependencyException
 	 */
-	protected ScriptCollection _calculateDependencies() throws CircularDependencyException {
+	protected ScriptCollection _calculateDependencies() {
 
 		_scriptDependencies = new HashMap<Script,Set<Script>>();
 		_scriptDependenciesVV = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>();
 		//_independentlyProcessableScripts = new HashSet<Set<Script>>();
+		_containsCycles = false;
 
 
 		/** calculate direct dependencies */
@@ -598,7 +595,7 @@ public class ScriptCollection {
 
 				// add the current script as dependency to all scripts in the current path
 				for (Script pathEntry: qPath) {
-					if (_isManuallyRemovedDependency(pathEntry, script)) continue; // ignore the manually removed dependencies
+					if (_isManuallyRemovedDependency(pathEntry, qScript)) continue; // ignore the manually removed dependencies
 
 					_scriptInheritedDependencies.get(pathEntry).add(qScript);
 					_scriptInheritedDependenciesVV.get(qScript).add(pathEntry);
@@ -606,8 +603,11 @@ public class ScriptCollection {
 
 				// add the new dependencies to the queue
 				for (Script dependency: _scriptDependencies.get(qScript)) {
+					if (_isManuallyRemovedDependency(qScript,dependency)) continue;
 					if (qPath.contains(dependency)) {
-						throw new CircularDependencyException("Circular Dependency found! Please remove all cycles..");
+						//throw new CircularDependencyException("Circular Dependency found! Please remove all cycles..");
+						_containsCycles = true;
+						continue;
 					}
 					List<Script> dependencyPath = new LinkedList<Script>(qPath);
 					dependencyPath.add(qScript);
@@ -715,6 +715,7 @@ public class ScriptCollection {
 	protected Map<Script,Set<Script>> _scriptInheritedDependencies;
 	/** inherited dependencies vice versa, Map(Script => Set<Scripts> which depend on the first script) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependenciesVV;
+	protected boolean _containsCycles=false;
 	///** sets of scripts that may independently be processed */
 	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }

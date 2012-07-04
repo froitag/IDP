@@ -53,12 +53,12 @@ public class Main {
 				new JenaDatabase[]{new JenaDatabase("e")},
 				".."
 				);
-		Script r6 = new Script(
+		/*Script r6 = new Script(
 				"r6",
 				new JenaDatabase[]{new JenaDatabase("c")},
 				new JenaDatabase[]{new JenaDatabase("e")},
 				".."
-				);
+				);*/
 
 
 		ScriptCollection scripts;
@@ -69,9 +69,10 @@ public class Main {
 					r2,
 					r3,
 					r4,
-					//r5,
-					r6
+					r5,
+					//r6
 			});
+			scripts.removeDependency(new Script("r5"), new Script("r5"));
 
 			scripts.printScripts();
 			System.out.println();
