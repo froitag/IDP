@@ -1,30 +1,30 @@
 package de.tum.in.fedsparql.inference.framework.GUI;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
 
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.io.Database;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-
-import java.awt.Dimension;
-import javax.swing.UIManager;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ScriptForm extends JPanel {
 
@@ -36,11 +36,12 @@ public class ScriptForm extends JPanel {
 	private JTable inputTable;
 	private JTable outputTable;
 	private JTextArea textArea;
+	private static int scriptCounter=0;
 
 	public ScriptForm(GUI gui) {
-		this(gui, new Script("NewScript"));
+		this(gui, new Script("NewScript"+(++scriptCounter)));
 	}
-	
+
 	/**
 	 * Create the panel.
 	 * @wbp.parser.constructor
@@ -53,7 +54,7 @@ public class ScriptForm extends JPanel {
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,},
-			new RowSpec[] {
+				new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("fill:default"),
 				FormFactory.RELATED_GAP_ROWSPEC,
@@ -65,25 +66,25 @@ public class ScriptForm extends JPanel {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("fill:default"),
 				FormFactory.RELATED_GAP_ROWSPEC,}));
-		
+
 		JPanel panel = new JPanel();
 		add(panel, "2, 2, 3, 1, fill, fill");
 		panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),},
-			new RowSpec[] {
+				new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC,}));
 		JLabel lblScriptName = new JLabel("Script name:");
 		panel.add(lblScriptName, "1, 1, right, default");
-		
+
 		textField = new JTextField();
 		panel.add(textField, "3, 1, fill, default");
 		textField.setColumns(10);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane, "2, 4");
-		
+
 		inputTable = new JTable();
 		inputTable.setRowHeight(18);
 		inputTable.setBackground(UIManager.getColor("Button.background"));
@@ -105,8 +106,9 @@ public class ScriptForm extends JPanel {
 			 */
 			private static final long serialVersionUID = 6948798906173992975L;
 			Class<?>[] columnTypes = new Class[] {
-				Boolean.class, String.class
+					Boolean.class, String.class
 			};
+			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
@@ -117,10 +119,10 @@ public class ScriptForm extends JPanel {
 		inputTable.getColumnModel().getColumn(0).setMaxWidth(20);
 		inputTable.getColumnModel().getColumn(1).setMinWidth(75);
 		scrollPane.setViewportView(inputTable);
-		
+
 		JScrollPane scrollPane_1 = new JScrollPane();
 		add(scrollPane_1, "4, 4");
-		
+
 		outputTable = new JTable();
 		outputTable.setRowHeight(18);
 		outputTable.setBackground(UIManager.getColor("Button.background"));
@@ -142,8 +144,9 @@ public class ScriptForm extends JPanel {
 			 */
 			private static final long serialVersionUID = -6300798795385609709L;
 			Class<?>[] columnTypes = new Class[] {
-				Boolean.class, Object.class
+					Boolean.class, Object.class
 			};
+			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}
@@ -154,18 +157,19 @@ public class ScriptForm extends JPanel {
 		outputTable.getColumnModel().getColumn(0).setMaxWidth(20);
 		outputTable.getColumnModel().getColumn(1).setMinWidth(75);
 		scrollPane_1.setViewportView(outputTable);
-		
+
 		JLabel lblNewLabel = new JLabel("Script code:");
 		add(lblNewLabel, "2, 6, 3, 1");
-		
+
 		JScrollPane scrollPane_2 = new JScrollPane();
 		add(scrollPane_2, "2, 8, 3, 1, fill, fill");
-		
+
 		textArea = new JTextArea();
 		scrollPane_2.setViewportView(textArea);
-		
+
 		JButton btnNewButton = new JButton("Save");
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				script.id = textField.getText();
 				script.jScript = textArea.getText();
@@ -178,13 +182,13 @@ public class ScriptForm extends JPanel {
 
 		textField.setText(script.id);
 		textArea.setText(script.jScript);
-		
+
 	}
-	
+
 	String getTextField() {
 		return textField.getText();
 	}
-	
+
 	JTable getInputTable() {
 		return inputTable;
 	}
@@ -196,7 +200,7 @@ public class ScriptForm extends JPanel {
 	JTextArea getTextArea() {
 		return textArea;
 	}
-	
+
 	Set<Database> createDatabaseSet(TableModel model) {
 		HashSet<Database> set = new HashSet<Database>();
 		for (int i = 0; i < model.getRowCount() - 1; i++) {
