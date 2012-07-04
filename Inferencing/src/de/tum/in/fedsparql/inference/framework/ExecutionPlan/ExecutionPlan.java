@@ -1,9 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -214,27 +212,42 @@ public class ExecutionPlan {
 		_startStep.execute(dispatcher);
 	}
 
-	public boolean generatePNG(File outputPng) throws IOException {
-		OutputStream png = new FileOutputStream(outputPng);
+	public byte[] generatePNG() throws IOException {
+		ByteArrayOutputStream png = new ByteArrayOutputStream();
+
 		String source = "";
 		source += "@startuml\n";
-		source += "(*) --> \"Initialisation\"\n";
-		source += "if \"Some Test\" then\n";
-		source += "  -->[true] \"Some Activity\"\n";
-		source += "  --> \"Another activity\"\n";
-		source += "  -right-> (*)\n";
-		source += "else\n";
-		source += "  ->[false] \"Something else\"\n";
-		source += "  -->[Ending process] (*)\n";
-		source += "endif\n";
-		source += "\n@enduml\n";
+		//		source += "(*) --> \"Initialisation\"\n";
+		//		source += "if \"\" then\n";
+		//		source += "  -->[true] \"Some Activity\"\n";
+		//		source += "  --> \"Another activity\"\n";
+		//		source += "  -right-> (*)\n";
+		//		source += "else\n";
+		//		source += "  ->[false] \"Something else\"\n";
+		//		source += "  -->[Ending process] (*)\n";
+		//		source += "endif\n";
+
+		//		Map<ExecutionStep,String> nextSteps = new HashMap<ExecutionStep,String>();
+		//		nextSteps.put(this.getStartStep(), "[*]");
+		//
+		//		while (nextSteps.size() != 0) {
+		//
+		//		}
+
+
+		source += "[*] -right-> First\n";
+		source += "First -right-> Second\n";
+		source += "First -right-> Third\n";
+		source += "Second -right-> Third\n";
+		source += "Third -right-> [*]\n";
+		source += "@enduml\n";
 
 
 		SourceStringReader reader = new SourceStringReader(source);
 		// Write the first image to "png"
 		String desc = reader.generateImage(png);
 		// Return a null string if no generation
-		return desc!=null;
+		return desc!=null ? png.toByteArray() : null;
 	}
 
 

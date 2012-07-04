@@ -1,5 +1,6 @@
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
@@ -98,7 +99,11 @@ public class Main {
 			String outputPNG = "graph.png";
 			System.out.println("GENERATING IMAGE: " + outputPNG);
 			try {
-				if (!p.generatePNG(new File(outputPNG))) {
+				byte[] png = p.generatePNG();
+				if (png != null) {
+					FileOutputStream fos = new FileOutputStream(new File(outputPNG));
+					fos.write(png);
+				} else {
 					System.out.println("ERROR");
 				}
 			} catch (IOException e) {
