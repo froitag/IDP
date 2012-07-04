@@ -2,9 +2,13 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
@@ -232,13 +236,30 @@ public class ExecutionPlan {
 		//		while (nextSteps.size() != 0) {
 		//
 		//		}
-		//		Queue<ExecutionStep> queue = new LinkedList<ExecutionStep>();
-		//		queue.add(this.getStartStep());
-		//
-		//		while (!queue.isEmpty()) {
-		//			ExecutionStep curStep = queue.remove();
-		//			String curStepName ="";
-		//		}
+
+		Queue<ExecutionStep> queue = new LinkedList<ExecutionStep>();
+		queue.add(this.getStartStep());
+
+		List<String> lastStepNames=new ArrayList<String>();
+		while (!queue.isEmpty()) {
+			ExecutionStep curStep = queue.remove();
+
+			if (curStep instanceof Start) {
+				lastStepNames.add("[*]");
+				queue.add(((Start)curStep).next);
+			} else if (curStep instanceof Fork) {
+				for (ExecutionStep nextStep: ((Fork)curStep).branches) {
+
+					queue.add(nextStep);
+				}
+			} else if (curStep instanceof SynchronizationPoint) {
+
+			} else if (curStep instanceof ScriptExecution) {
+
+			} else if (curStep instanceof Finish) {
+
+			}
+		}
 
 
 		source += "[*] -right-> First\n";
