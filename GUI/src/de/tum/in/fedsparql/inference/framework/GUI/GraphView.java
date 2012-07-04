@@ -1,7 +1,9 @@
 package de.tum.in.fedsparql.inference.framework.GUI;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +24,7 @@ import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.event.GraphEvent.Edge;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -31,19 +34,24 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import javax.swing.table.TableModel;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.Transformer;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 @SuppressWarnings("serial")
 public class GraphView extends JPanel {
 
-	Graph<Script, String> g;
+	Graph<Script, EdgeClass> g;
 	Factory <Script> vertexFactory;
-    Factory<String> edgeFactory;
+    Factory<EdgeClass> edgeFactory;
 	
 	/**
 	 * Create the panel.
@@ -106,11 +114,15 @@ public class GraphView extends JPanel {
 		ScriptCollection scripts = null;
 		try {
 			scripts = new ScriptCollection(scriptArray);
+			for (EdgeClass edge : gui.getDeletedEdges()) {
+				scripts.removeDependency(edge.vertex1, edge.vertex2);
+			}
 		} catch (CircularDependencyException e) {
 			e.printStackTrace();
 		}
+		gui.setScriptCollection(scripts);
 		
-		g = new SparseMultigraph<Script, String>();
+		g = new SparseMultigraph<Script, EdgeClass>();
         
         for (Script script : scripts.getScripts()) {
         	g.addVertex(script);
@@ -118,12 +130,18 @@ public class GraphView extends JPanel {
         Map<Script,Set<Script>> map = scripts.getDirectDependencies();
         for (Script vertex1 : map.keySet()) {
         	for (Script vertex2 : map.get(vertex1)) {
-        		g.addEdge(vertex1 + ":" + vertex2, vertex1, vertex2, EdgeType.DIRECTED);
+        		g.addEdge(new EdgeClass(vertex1, vertex2), vertex1, vertex2, EdgeType.DIRECTED);
+        	}
+        }
+        Map<Script,Set<Script>> manuallyRemovedDependencies = scripts.getManuallyRemovedDependencies();
+        for (Script vertex1 : manuallyRemovedDependencies.keySet()) {
+        	for (Script vertex2 : manuallyRemovedDependencies.get(vertex1)) {
+        		g.addEdge(new EdgeClass(vertex1, vertex2, true), vertex1, vertex2, EdgeType.DIRECTED);
         	}
         }
         
-		Layout<Script, String> layout = new ISOMLayout<Script, String>(g);
-		final VisualizationViewer<Script, String> vv = new VisualizationViewer<Script, String>(layout);
+		Layout<Script, EdgeClass> layout = new ISOMLayout<Script, EdgeClass>(g);
+		final VisualizationViewer<Script, EdgeClass> vv = new VisualizationViewer<Script, EdgeClass>(layout);
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		GraphZoomScrollPane graphPanel = new GraphZoomScrollPane(vv);
@@ -150,16 +168,36 @@ public class GraphView extends JPanel {
 		
 		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Script>());
 		
-		EditingModalGraphMouse<Script, String> gm = new EditingModalGraphMouse<Script, String>(vv.getRenderContext(), vertexFactory, edgeFactory);
+		EditingModalGraphMouse<Script, EdgeClass> gm =
+				new EditingModalGraphMouseExtension<Script, EdgeClass>(
+						vv.getRenderContext(),
+						vertexFactory,
+						edgeFactory,
+						gui);
         vv.setGraphMouse(gm);
         gm.setMode(ModalGraphMouse.Mode.PICKING);
-		
+        
 		Transformer<Script, Paint> vertexPaint = new Transformer<Script, Paint>() {
             public Paint transform(Script script) {
                 return Color.LIGHT_GRAY;
             }
         };
         vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+        
+        float[] dash = {10.0f};
+        final Stroke edgeStroke1 = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f);
+        final Stroke edgeStroke2 = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
+        
+        Transformer<EdgeClass, Stroke> edgeStrokeTransformer = new Transformer<EdgeClass, Stroke>() {
+        	public Stroke transform(EdgeClass edge) {
+        		if (edge.getDeleted()) {
+        			return edgeStroke1;
+        		} else {
+        			return edgeStroke2;
+        		}
+        	}
+        };
+        vv.getRenderContext().setEdgeStrokeTransformer(edgeStrokeTransformer);
         
 	}
 
