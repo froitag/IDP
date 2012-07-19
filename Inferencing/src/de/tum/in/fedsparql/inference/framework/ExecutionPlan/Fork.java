@@ -1,6 +1,8 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
@@ -38,23 +40,29 @@ public class Fork extends ExecutionStep {
 	 * @throws InterruptedException
 	 */
 	@Override
-	void execute(Scheduler dispatcher) {
+	void execute(Scheduler scheduler) throws Exception {
 		System.out.println(this);
 
 		/*
 		 *  continue first branch in current thread,
 		 *  spawn new threads for the rest
 		 */
-		Set<ExecutionStep> tempBranches = new HashSet<ExecutionStep>(this.branches);
-		ExecutionStep firstBranch = tempBranches.iterator().next();
-		tempBranches.remove(firstBranch);
-
-		// spawn new threads
-		for (ExecutionStep step: tempBranches) {
-			new ExecutionThread(step, dispatcher).start();
+		
+		List<ExecutionThread> threads = new ArrayList<ExecutionThread>();
+		
+		//spawn the new threads
+		for (ExecutionStep step : branches) {
+			ExecutionThread thread = new ExecutionThread(step, scheduler);
+			thread.start();
+			threads.add(thread);
 		}
-
-		// continue this thread
-		firstBranch.execute(dispatcher);
+		
+		//wait for all threads, throw exceptions that have occurred
+		for (ExecutionThread thread : threads) {
+			thread.join();
+			if (thread.exception != null) {
+				throw thread.exception;
+			}
+		}
 	}
 }

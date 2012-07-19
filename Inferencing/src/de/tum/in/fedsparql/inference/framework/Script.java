@@ -1,5 +1,6 @@
 package de.tum.in.fedsparql.inference.framework;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +11,7 @@ import de.tum.in.fedsparql.inference.io.Database;
  * representing a script which can be executed on de.tum.in.fedsparql.inference.io.Databases
  * 
  */
-public class Script {
+public class Script extends de.tum.in.fedsparql.inference.Script {
 	/*
 	 * public member
 	 */
@@ -49,6 +50,7 @@ public class Script {
 	 * @param jScript The actual JavaScript
 	 */
 	public Script(String id, Database[] inputDatabases, Database[] outputDatabases, String jScript) {
+		super(null, null, id, jScript);
 		this.id = id;
 		this.inputDatabases = new HashSet<Database>(Arrays.asList(inputDatabases));
 		this.outputDatabases = new HashSet<Database>(Arrays.asList(outputDatabases));
@@ -61,6 +63,7 @@ public class Script {
 	 * @param script
 	 */
 	public Script(Script script) {
+		super(null, null, script.id, script.jScript);
 		this.id = script.id;
 		this.inputDatabases = new HashSet<Database>(script.inputDatabases);
 		this.outputDatabases = new HashSet<Database>(script.outputDatabases);

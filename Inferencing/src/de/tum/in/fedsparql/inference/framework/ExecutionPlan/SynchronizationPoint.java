@@ -40,9 +40,10 @@ public class SynchronizationPoint extends ExecutionStep {
 
 	/**
 	 * merge execution
+	 * @throws Exception 
 	 */
 	@Override
-	void execute(Scheduler dispatcher) {
+	void execute(Scheduler scheduler) throws Exception {
 		System.out.println(this);
 
 		if (Thread.currentThread() instanceof ExecutionThread) {
@@ -57,14 +58,14 @@ public class SynchronizationPoint extends ExecutionStep {
 				// continue execution
 				System.out.println("SYNC continue");
 				if (this.next != null) {
-					this.next.execute(dispatcher);
+					this.next.execute(scheduler);
 				} else {
-					Thread.currentThread().interrupt();
+					//Thread.currentThread().interrupt();
 				}
 			} else {
 				// terminate thread, wait until all other dependencies are completed
 				System.out.println("SYNC wait");
-				Thread.currentThread().interrupt();
+				//Thread.currentThread().interrupt();
 			}
 		}
 	}

@@ -215,8 +215,9 @@ public class ExecutionPlan {
 	}
 	/**
 	 * run plan
+	 * @throws Exception 
 	 */
-	public void execute(Scheduler dispatcher) {
+	public void execute(Scheduler dispatcher) throws Exception {
 		_startStep.execute(dispatcher);
 	}
 

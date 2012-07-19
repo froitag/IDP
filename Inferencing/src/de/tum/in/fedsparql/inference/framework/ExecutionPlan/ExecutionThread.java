@@ -8,18 +8,22 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
 class ExecutionThread extends Thread {
 
 	public ExecutionStep executionStep;
-	public Scheduler dispatcher;
-
-	public ExecutionThread(ExecutionStep step, Scheduler dispatcher) {
+	public Scheduler scheduler;
+	
+	public Exception exception = null;
+	
+	public ExecutionThread(ExecutionStep step, Scheduler scheduler) {
 		this.executionStep = step;
-		this.dispatcher = dispatcher;
+		this.scheduler = scheduler;
 	}
 
 
 	@Override
 	public void run() {
-		this.executionStep.execute(this.dispatcher);
+		try {
+			this.executionStep.execute(this.scheduler);
+		} catch (Exception e) {
+			this.exception = e;
+		}
 	}
-
-
 }

@@ -40,17 +40,16 @@ public class ScriptExecution extends ExecutionStep {
 
 	/**
 	 * Execute Script and goto next step
+	 * @throws Exception 
 	 */
 	@Override
-	void execute(Scheduler dispatcher) {
+	void execute(Scheduler scheduler) throws Exception {
 		System.out.println(this);
 		if (Thread.currentThread() instanceof ExecutionThread) {
-			ExecutionThread t = (ExecutionThread) Thread.currentThread();
-
-			t.executionStep = this;
+			((ExecutionThread) Thread.currentThread()).executionStep = this;
 		}
-
-		dispatcher.enqueue(this.script, this.scriptCollection);
-		this.next.execute(dispatcher);
+		
+		scheduler.executeInternal(this.script, this.scriptCollection);
+		this.next.execute(scheduler);
 	}
 }

@@ -20,6 +20,6 @@ public abstract class ExecutionStep {
 		return _ID+"#"+this.getClass().getSimpleName();
 	}
 
-	abstract void execute(Scheduler dispatcher);
+	abstract void execute(Scheduler scheduler) throws Exception;
 
 }
