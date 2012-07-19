@@ -1,10 +1,13 @@
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
-import de.tum.in.fedsparql.inference.dummy.JenaIO;
+import de.tum.in.fedsparql.inference.dummy.DummyDatabase;
+import de.tum.in.fedsparql.inference.dummy.DummyIO;
 import de.tum.in.fedsparql.inference.io.Database;
 import de.tum.in.fedsparql.inference.io.IO;
+import de.tum.in.fedsparql.inference.io.Node;
 import de.tum.in.fedsparql.rts.executor.FSException;
 import de.tum.in.fedsparql.rts.executor.FSResultSet;
 
@@ -36,16 +39,22 @@ public class Test {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	private static IO buildIO() throws FileNotFoundException {
+	public static IO buildIO() throws FileNotFoundException {
+		
+		// Define nodes
+		List<Node> nodes = new ArrayList<Node>();
+		nodes.add(new Node("Node1", "localhost", 2221));
+		nodes.add(new Node("Node2", "localhost", 2222));
+		nodes.add(new Node("Node3", "localhost", 2223));
 		
 		// EXAMPLE 1:
 		// Build a dummy federation
-		JenaIO io = new JenaIO();
-		io.register(new JenaDatabase("Test1", "database/test.nt"));
-		io.register(new JenaDatabase("Test2", "database/test.nt"));
-		io.register(new JenaDatabase("Test3", "database/test.nt"));
-		io.register(new JenaDatabase("Test4", "database/test.nt"));
-		io.register(new JenaDatabase("Test5", "database/test.nt"));
+		DummyIO io = new DummyIO(nodes);
+		io.register(io.getNodeByName("Node1"), new DummyDatabase("Test1", "database/test.nt"));
+		io.register(io.getNodeByName("Node1"), new DummyDatabase("Test2", "database/test.nt"));
+		io.register(io.getNodeByName("Node2"), new DummyDatabase("Test3", "database/test.nt"));
+		io.register(io.getNodeByName("Node2"), new DummyDatabase("Test4", "database/test.nt"));
+		io.register(io.getNodeByName("Node3"), new DummyDatabase("Test5", "database/test.nt"));
 		return io;
 	}
 	
@@ -102,7 +111,7 @@ public class Test {
 		// And write a triple
 		io.writeTriple(db1, 	"<http://www.in.tum.de>", 
 								"<http://example.org#websiteOf>", 
-								"\"Fakultät für Informatik\"^^<http://www.w3.org/2001/XMLSchema#string>");
+								"\"Fakultaet fuer Informatik\"^^<http://www.w3.org/2001/XMLSchema#string>");
 		
 		// Prints all triples in database 
 		System.out.println("Triples in temporary database:");

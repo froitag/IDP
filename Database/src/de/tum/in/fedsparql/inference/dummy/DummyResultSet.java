@@ -18,7 +18,7 @@ import de.tum.in.fedsparql.rts.executor.FSResultSet;
  * A jena specific implementation of a result set
  * @author prasser
  */
-public class JenaResultSet implements FSResultSet{
+public class DummyResultSet implements FSResultSet{
 
 	/** The header*/
 	private String[] header = null;
@@ -36,7 +36,7 @@ public class JenaResultSet implements FSResultSet{
 	 * Creates a new result set
 	 * @param rs
 	 */
-	public JenaResultSet(ResultSet rs) {
+	public DummyResultSet(ResultSet rs) {
 		
 		// Break if empty
 		if (!rs.hasNext()) return;

@@ -1,8 +1,26 @@
 package de.tum.in.fedsparql.inference.io;
 
-//import de.tum.in.fedsparql.inference.framework.Script;
+public class Node {
 
-public interface Node {
+	private String name = "Undefined";
+	private String host = "localhost";
+	private int port = 2221;
+	
+	public Node(String name, String host, int port){
+		this.name = name;
+		this.host = host;
+		this.port = port;
+	}
+	
+	public String getName() {
+		return name;
+	}
 
-//	public void execute(Script script);
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
 }
