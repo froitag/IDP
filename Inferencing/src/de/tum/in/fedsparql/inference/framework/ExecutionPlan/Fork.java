@@ -37,7 +37,7 @@ public class Fork extends ExecutionStep {
 
 	/**
 	 * fork execution
-	 * @throws InterruptedException
+	 * @throws Exception
 	 */
 	@Override
 	void execute(Scheduler scheduler) throws Exception {

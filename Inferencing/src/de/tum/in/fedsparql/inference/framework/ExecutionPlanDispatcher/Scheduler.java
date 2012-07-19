@@ -77,7 +77,8 @@ public abstract class Scheduler {
 		}
 		
 		//execute the script on the selected node
-		System.out.println("DISPATCHER: executing " + threadInfo.script + " on node " + threadInfo.node);
+		System.out.println("SCHEDULER: executing " + threadInfo.script + " on node " + threadInfo.node);
 		dispatcher.execute(threadInfo.node, threadInfo.script);
+		System.out.println("SCHEDULER: execution of " + threadInfo.script + " completed");
 	}
 }
