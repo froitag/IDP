@@ -14,6 +14,7 @@ import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionStep;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.DBPriorityScheduler;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.PriorityScheduler;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.SimpleScheduler;
@@ -133,9 +134,15 @@ public class Main {
 			io.register(io.getNodeByName("Node2"), new DummyDatabase("Test3", "database/test.nt"));
 			io.register(io.getNodeByName("Node2"), new DummyDatabase("Test4", "database/test.nt"));
 			io.register(io.getNodeByName("Node3"), new DummyDatabase("Test5", "database/test.nt"));
+			
+			io.register(io.getNodeByName("Node1"), new JenaDatabase("a"));
+			io.register(io.getNodeByName("Node1"), new JenaDatabase("b"));
+			io.register(io.getNodeByName("Node2"), new JenaDatabase("c"));
+			io.register(io.getNodeByName("Node2"), new JenaDatabase("d"));
+			io.register(io.getNodeByName("Node3"), new JenaDatabase("e"));
 
 			// execute execution plan
-			Scheduler dispatcher = new PriorityScheduler(scripts, io, new DummyMonitoring(), new DummyDispatcher());
+			Scheduler dispatcher = new DBPriorityScheduler(scripts, io, new DummyMonitoring(), new DummyDispatcher());
 			System.out.println("EXECUTING:");
 			p.execute(dispatcher);
 		} catch (CircularDependencyException e) {

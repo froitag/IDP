@@ -40,13 +40,17 @@ public class PriorityScheduler extends WindowedScheduler {
 				double priority1 = getScriptPriority(o1.script);
 				double priority2 = getScriptPriority(o2.script);
 				
-				if (priority1 > priority2)
-					return 1;
 				if (priority1 < priority2)
+					return 1;
+				if (priority1 > priority2)
 					return -1;
 				return 0;
 			}
 		});
+		
+		for (ThreadInfo threadInfo : threads) {
+			System.out.println("SCHEDULER: Priority of script " + threadInfo.script + ": " + getScriptPriority(threadInfo.script));
+		}
 		
 		for (final ThreadInfo threadInfo : threads) {
 			List<Node> nodes = new ArrayList<Node>(io.getNodes());
@@ -56,13 +60,17 @@ public class PriorityScheduler extends WindowedScheduler {
 					double priority1 = getNodePriority(threadInfo.script, o1);
 					double priority2 = getNodePriority(threadInfo.script, o2);
 					
-					if (priority1 > priority2)
-						return 1;
 					if (priority1 < priority2)
+						return 1;
+					if (priority1 > priority2)
 						return -1;
 					return 0;
 				}
 			});
+			
+			for (Node node : nodes) {
+				System.out.println("SCHEDULER: Priority of node " + node + ": " + getNodePriority(threadInfo.script, node));
+			}
 			
 			if (nodes.isEmpty()) {
 				//start execution without specifying a node
