@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
@@ -20,6 +21,15 @@ public class PriorityScheduler extends WindowedScheduler {
 		super(collection, io, monitoring, dispatcher);
 		// TODO Auto-generated constructor stub
 	}
+	
+	protected double getScriptPriority(Script script) {
+		return collection.getAllDependencies(script).size();
+	}
+	
+	protected double getNodePriority(Script script, Node node) {
+		Load load = monitoring.monitor(node);
+		return (1 - load.cpu) * 0.5 + (1 - load.io) * 0.5;
+	}
 
 	@Override
 	protected void scheduleWindow(Window window) {
@@ -27,35 +37,29 @@ public class PriorityScheduler extends WindowedScheduler {
 		Collections.sort(threads, new Comparator<ThreadInfo>() {
 			@Override
 			public int compare(ThreadInfo o1, ThreadInfo o2) {
-				int dependencies1 = collection.getAllDependencies(o1.script).size();
-				int dependencies2 = collection.getAllDependencies(o2.script).size();
+				double priority1 = getScriptPriority(o1.script);
+				double priority2 = getScriptPriority(o2.script);
 				
-				if (dependencies1 > dependencies2) {
+				if (priority1 > priority2)
 					return 1;
-				}
-				if (dependencies1 < dependencies2) {
+				if (priority1 < priority2)
 					return -1;
-				}
 				return 0;
 			}
 		});
 		
-		for (ThreadInfo threadInfo : threads) {
+		for (final ThreadInfo threadInfo : threads) {
 			List<Node> nodes = new ArrayList<Node>(io.getNodes());
 			Collections.sort(nodes, new Comparator<Node>() {
 				@Override
 				public int compare(Node o1, Node o2) {
-					Load load1 = monitoring.monitor(o1);
-					Load load2 = monitoring.monitor(o2);
-					double totalLoad1 = load1.cpu * 0.5 + load1.io * 0.5;
-					double totalLoad2 = load2.cpu * 0.5 + load2.io * 0.5;
+					double priority1 = getNodePriority(threadInfo.script, o1);
+					double priority2 = getNodePriority(threadInfo.script, o2);
 					
-					if (totalLoad1 > totalLoad2) {
+					if (priority1 > priority2)
 						return 1;
-					}
-					if (totalLoad1 < totalLoad2) {
+					if (priority1 < priority2)
 						return -1;
-					}
 					return 0;
 				}
 			});
