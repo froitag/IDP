@@ -1,7 +1,7 @@
 package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 
 /**
@@ -13,14 +13,6 @@ public class ScriptExecution extends ExecutionStep {
 		super(ID);
 	}
 
-	@Override
-	public String toString() {
-		String str = super.toString();
-		str += " " + this.script + "; -> " + (this.next!=null?this.next.getID():"NULL");
-		return str;
-	}
-
-
 
 	/**
 	 * Script to execute
@@ -29,18 +21,15 @@ public class ScriptExecution extends ExecutionStep {
 	/**
 	 * ScriptCollection this.script belongs to
 	 */
-	public ScriptCollection scriptCollection=null;
+	public DependencyGraph scriptCollection=null;
 	/**
 	 * Next step
 	 */
 	public ExecutionStep next=null;
 
-
-
-
 	/**
 	 * Execute Script and goto next step
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	void execute(Scheduler scheduler) throws Exception {
@@ -48,8 +37,19 @@ public class ScriptExecution extends ExecutionStep {
 		if (Thread.currentThread() instanceof ExecutionThread) {
 			((ExecutionThread) Thread.currentThread()).executionStep = this;
 		}
-		
+
 		scheduler.executeInternal(this.script, this.scriptCollection);
 		this.next.execute(scheduler);
+	}
+
+
+	/**
+	 * overridden toString()
+	 */
+	@Override
+	public String toString() {
+		String str = super.toString();
+		str += " " + this.script + "; -> " + (this.next!=null?this.next.getID():"NULL");
+		return str;
 	}
 }

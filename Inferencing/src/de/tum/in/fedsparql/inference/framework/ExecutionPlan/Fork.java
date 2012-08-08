@@ -18,22 +18,11 @@ public class Fork extends ExecutionStep {
 		super(ID);
 	}
 
-	@Override
-	public String toString() {
-		String str=super.toString();
-		for (ExecutionStep step: this.branches) {
-			str += " ->" + step.getID();
-		}
-
-		return str;
-	}
-
 
 	/**
 	 * Next parallel executable steps
 	 */
 	public Set<ExecutionStep> branches=new HashSet<ExecutionStep>();
-
 
 	/**
 	 * fork execution
@@ -47,16 +36,16 @@ public class Fork extends ExecutionStep {
 		 *  continue first branch in current thread,
 		 *  spawn new threads for the rest
 		 */
-		
+
 		List<ExecutionThread> threads = new ArrayList<ExecutionThread>();
-		
+
 		//spawn the new threads
 		for (ExecutionStep step : branches) {
 			ExecutionThread thread = new ExecutionThread(step, scheduler);
 			thread.start();
 			threads.add(thread);
 		}
-		
+
 		//wait for all threads, throw exceptions that have occurred
 		for (ExecutionThread thread : threads) {
 			thread.join();
@@ -64,5 +53,19 @@ public class Fork extends ExecutionStep {
 				throw thread.exception;
 			}
 		}
+	}
+
+
+	/**
+	 * overridden toString()
+	 */
+	@Override
+	public String toString() {
+		String str=super.toString();
+		for (ExecutionStep step: this.branches) {
+			str += " ->" + step.getID();
+		}
+
+		return str;
 	}
 }

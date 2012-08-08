@@ -14,7 +14,7 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
@@ -26,11 +26,11 @@ public class ExecutionPlan {
 	 * @param _sc
 	 * @throws CircularDependencyException
 	 */
-	public ExecutionPlan(ScriptCollection sc) throws CircularDependencyException {
+	public ExecutionPlan(DependencyGraph sc) throws CircularDependencyException {
 		if (sc.containsCycle()) {
 			throw new CircularDependencyException("ScriptCollection contains circular dependencies! Please remove all cycles..");
 		}
-		_sc = new ScriptCollection(sc);
+		_sc = new DependencyGraph(sc);
 
 		int stepId=0;
 
@@ -330,7 +330,7 @@ public class ExecutionPlan {
 	}
 
 	/* protected member */
-	protected ScriptCollection _sc;
+	protected DependencyGraph _sc;
 	protected Set<ExecutionStep> _steps=new HashSet<ExecutionStep>();
 	protected Start _startStep;
 	protected Finish _endStep;

@@ -9,14 +9,13 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
  */
 public class Finish extends SynchronizationPoint {
 
-
 	public Finish(Object ID) {
 		super(ID);
 	}
 
 	/**
 	 * terminate execution
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	void execute(Scheduler scheduler) throws Exception {

@@ -14,8 +14,9 @@ import de.tum.in.fedsparql.inference.io.Database;
 /**
  * Manages a collection of de.tum.in.fedsparql.inference.framework.Script.
  * Is immutable after creation (except the manual removal/adding of dependencies).
+ * (actual dependency calculation is done in _calculateDependencies() which is called after DependencyGraph creation + each time the graph was manually changed)
  */
-public class ScriptCollection {
+public class DependencyGraph {
 
 	/* constructors */
 	/**
@@ -24,7 +25,7 @@ public class ScriptCollection {
 	 * 
 	 * @param scripts The collection's Scripts.
 	 */
-	public ScriptCollection(Script[] scripts) {
+	public DependencyGraph(Script[] scripts) {
 		for (Script script: scripts) {
 			_addScript(script);
 		}
@@ -33,12 +34,12 @@ public class ScriptCollection {
 	}
 	/**
 	 * Constructor.
-	 * Initializes a ScriptCollection with given Scripts and set of dependencies which shall be ignored.
+	 * Initializes a ScriptCollection with given Scripts and a set of dependencies which shall be ignored.
 	 * 
 	 * @param scripts The collection's Scripts.
 	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
 	 */
-	public ScriptCollection(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) {
+	public DependencyGraph(Script[] scripts, Map<Script,Set<Script>> manuallyRemovedDependencies) {
 		for (Script script: scripts) {
 			_addScript(script);
 		}
@@ -52,7 +53,7 @@ public class ScriptCollection {
 	 * 
 	 * @param scriptCollection
 	 */
-	public ScriptCollection(ScriptCollection scriptCollection) {
+	public DependencyGraph(DependencyGraph scriptCollection) {
 		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getManuallyRemovedDependencies());
 	}
 
@@ -225,46 +226,7 @@ public class ScriptCollection {
 
 		return dependencies;
 	}
-	//	/**
-	//	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
-	//	 * all possible combinations are returned.
-	//	 */
-	//	public Set<Set<Script>> getIndependencies() {
-	//		Set<Set<Script>> ret = new HashSet<Set<Script>>();
-	//
-	//		for (Set<Script> set: _independentlyProcessableScripts) {
-	//			Set<Script> newSet = new HashSet<Script>();
-	//
-	//			for (Script script: set) {
-	//				newSet.add(new Script(script));
-	//			}
-	//
-	//			ret.add(newSet);
-	//		}
-	//
-	//		return ret;
-	//	}
-	//	/**
-	//	 * returns a bunch of Set<Script>s. each set only contains scripts that are independent from each other, therefore all the scripts of one set can be processed simultaneously.
-	//	 * all possible combinations that involve the given script are returned.
-	//	 */
-	//	public Set<Set<Script>> getIndependencies(Script script) {
-	//		if (!_scripts.contains(script)) return null;
-	//
-	//		Set<Set<Script>> ret = new HashSet<Set<Script>>();
-	//
-	//		for (Set<Script> set: _independentlyProcessableScripts) {
-	//			if (!set.contains(script)) continue;
-	//
-	//			Set<Script> newSet = new HashSet<Script>();
-	//			for (Script s: set) {
-	//				newSet.add(new Script(s));
-	//			}
-	//			ret.add(newSet);
-	//		}
-	//
-	//		return ret;
-	//	}
+
 	/**
 	 * returns all scripts of this collection that do not depend on other scripts (may be used to start processing).
 	 * returns a set of copies that can be manipulated without changing the ScriptCollection itself.
@@ -280,32 +242,7 @@ public class ScriptCollection {
 
 		return ret;
 	}
-	//	/**
-	//	 * returns true if script depends on scripts.
-	//	 * all scripts must be known to the collection (passed at construction).
-	//	 *
-	//	 * @param script
-	//	 * @param scripts
-	//	 */
-	//	public boolean dependsOn(Script script, Set<Script> scripts) {
-	//		if (script==null || !_scriptInheritedDependencies.containsKey(script)) return false;
-	//
-	//		for (Script dependency: scripts) {
-	//			if (!_scriptInheritedDependencies.containsKey(dependency)) continue;
-	//
-	//			if (_scriptInheritedDependencies.get(script).contains(dependency)) {
-	//				return true;
-	//			}
-	//		}
-	//
-	//		return false;
-	//	}
-	//	public boolean dependsOn(Script script, Script dependency) {
-	//		Set<Script> set = new HashSet<Script>();
-	//		set.add(dependency);
-	//
-	//		return this.dependsOn(script, set);
-	//	}
+
 
 	/**
 	 * manually adds a dependency
@@ -315,7 +252,7 @@ public class ScriptCollection {
 	 * @param dependency
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection addDependency(Script script, Script dependency) {
+	public DependencyGraph addDependency(Script script, Script dependency) {
 		// form set to pass addDependencies(Map)
 		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
 		Set<Script> set = new HashSet<Script>();
@@ -333,7 +270,7 @@ public class ScriptCollection {
 	 * @param dependencies
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection addDependencies(Map<Script,Set<Script>> dependencies) {
+	public DependencyGraph addDependencies(Map<Script,Set<Script>> dependencies) {
 		// add dependencies to the _addedDependencies map
 		for (Script script: dependencies.keySet()) {
 			if (!_addedDependencies.containsKey(script)) {
@@ -364,7 +301,7 @@ public class ScriptCollection {
 	 * @param dependency
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection removeDependency(Script script, Script dependency) {
+	public DependencyGraph removeDependency(Script script, Script dependency) {
 		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
 		Set<Script> set = new HashSet<Script>();
 		set.add(dependency);
@@ -380,7 +317,7 @@ public class ScriptCollection {
 	 * @param dependencies
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection removeDependencies(Map<Script,Set<Script>> dependencies) {
+	public DependencyGraph removeDependencies(Map<Script,Set<Script>> dependencies) {
 		// add dependencies to the _removedDependencies map
 		for (Script script: dependencies.keySet()) {
 			if (!_removedDependencies.containsKey(script)) {
@@ -408,7 +345,7 @@ public class ScriptCollection {
 	 * @param dependency
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection removeDependency(Script dependency) {
+	public DependencyGraph removeDependency(Script dependency) {
 		// forward to addDependency(Script,Script) for each script of this collection
 		// TODO: better: form Map and pass to addDependency(Map) => only 1x _calculateDependencies call
 		for (Script script: _scripts) {
@@ -426,7 +363,7 @@ public class ScriptCollection {
 	 * 
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection printScripts() {
+	public DependencyGraph printScripts() {
 		for (Script script: _scripts) {
 			System.out.println("Script \""+script.id+"\": \t"+script.inputDatabases+"\t->\t"+script.outputDatabases);
 		}
@@ -438,7 +375,7 @@ public class ScriptCollection {
 	 * 
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection printDirectDependencies() {
+	public DependencyGraph printDirectDependencies() {
 		/**
 			r1:[]
 			r2:[r5]
@@ -460,7 +397,7 @@ public class ScriptCollection {
 	 * 
 	 * @return this for fluent interface
 	 */
-	public ScriptCollection printInheritedDependencies() {
+	public DependencyGraph printInheritedDependencies() {
 		/**
 			r1:[]
 			r2:[r5]
@@ -477,19 +414,6 @@ public class ScriptCollection {
 
 		return this;
 	}
-	//	public void printIndependentlyProcessableScripts() {
-	//		/**
-	//		  	r5:
-	//			r3:
-	//			r1:
-	//			r4:	r3, r2
-	//			r2:	r1
-	//		 */
-	//
-	//		for (Set<Script> set: _independentlyProcessableScripts) {
-	//			System.out.println(set);
-	//		}
-	//	}
 
 
 
@@ -500,7 +424,7 @@ public class ScriptCollection {
 	 * @param script
 	 * @return this for fluent interface
 	 */
-	protected ScriptCollection _addScript(Script script) {
+	protected DependencyGraph _addScript(Script script) {
 		if (script==null) return this;
 
 		script = new Script(script); // copy the script to prevent the outside world from having a direct reference to it
@@ -523,13 +447,12 @@ public class ScriptCollection {
 	 * calculate the script dependencies
 	 * @return this for fluent interface
 	 */
-	protected ScriptCollection _calculateDependencies() {
+	protected DependencyGraph _calculateDependencies() {
 
 		_scriptDependencies = new HashMap<Script,Set<Script>>();
 		_scriptDependenciesVV = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>();
 		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>();
-		//_independentlyProcessableScripts = new HashSet<Set<Script>>();
 		_containsCycles = false;
 
 
@@ -611,47 +534,6 @@ public class ScriptCollection {
 			}
 		}
 
-
-		//		/** calculate sets of scripts that may independently be processed */
-		//		for (Script script: _scripts) {
-		//
-		//			Set<Script> independentScripts = new HashSet<Script>(_scripts);
-		//			independentScripts.removeAll(_scriptInheritedDependencies.get(script)); // remove all scripts the current script depends on
-		//			independentScripts.removeAll(_scriptInheritedDependenciesVV.get(script)); // remove all scripts which depend on the current script
-		//			independentScripts.remove(script); // remove itself from its own independence list
-		//
-		//			Set<Set<Script>> currentSets = new HashSet<Set<Script>>();
-		//			currentSets.add(new HashSet<Script>(Arrays.asList(new Script[]{script})));
-		//
-		//			for (Script independentScript: independentScripts) {
-		//
-		//				Set<Set<Script>> newSets=new HashSet<Set<Script>>();
-		//				for (Set<Script> set: currentSets) {
-		//					Set<Script> dependencies=new HashSet<Script>();
-		//					for (Script setScript: set) {
-		//						if (_dependOn(setScript, independentScript)) {
-		//							dependencies.add(setScript);
-		//						}
-		//					}
-		//
-		//					if (dependencies.size() <= 0) {// script does not depend on any script of the current set -> insert it
-		//						set.add(independentScript);
-		//					} else { // script depends on scripts of the current set -> split the set up
-		//						Set<Script> newSet = new HashSet<Script>(set);
-		//						newSet.removeAll(dependencies);
-		//						newSets.add(newSet);
-		//					}
-		//				}
-		//				currentSets.addAll(newSets);
-		//			}
-		//
-		//			for (Set<Script> set: currentSets) {
-		//				if (set.size() > 1) {
-		//					_independentlyProcessableScripts.add(set);
-		//				}
-		//			}
-		//		}
-
 		return this;
 	}
 	protected class InheritedDependenciesQueueEntry {
@@ -711,6 +593,4 @@ public class ScriptCollection {
 	/** inherited dependencies vice versa, Map(Script => Set<Scripts> which depend on the first script) */
 	protected Map<Script,Set<Script>> _scriptInheritedDependenciesVV;
 	protected boolean _containsCycles=false;
-	///** sets of scripts that may independently be processed */
-	//protected Set<Set<Script>> _independentlyProcessableScripts;
 }

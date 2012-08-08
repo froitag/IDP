@@ -27,20 +27,9 @@ public class SynchronizationPoint extends ExecutionStep {
 	public Set<ExecutionStep> waitFor=new HashSet<ExecutionStep>();
 
 
-	@Override
-	public String toString() {
-		String str = super.toString();
-		for (ExecutionStep step: this.waitFor) {
-			str += " " + step.getID();
-		}
-		str += "; ->" + (this.next!=null?this.next.getID():"NULL");
-
-		return str;
-	}
-
 	/**
 	 * merge execution
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	void execute(Scheduler scheduler) throws Exception {
@@ -69,6 +58,20 @@ public class SynchronizationPoint extends ExecutionStep {
 			}
 		}
 	}
-
 	protected Set<ExecutionStep> _doneSteps=new HashSet<ExecutionStep>();
+
+
+	/**
+	 * overridden toString()
+	 */
+	@Override
+	public String toString() {
+		String str = super.toString();
+		for (ExecutionStep step: this.waitFor) {
+			str += " " + step.getID();
+		}
+		str += "; ->" + (this.next!=null?this.next.getID():"NULL");
+
+		return str;
+	}
 }

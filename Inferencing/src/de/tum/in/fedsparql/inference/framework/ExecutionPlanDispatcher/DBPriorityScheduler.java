@@ -3,7 +3,7 @@ package de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher;
 import java.util.List;
 
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Database;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
@@ -13,7 +13,7 @@ import de.tum.in.fedsparql.inference.io.Node;
 
 public class DBPriorityScheduler extends PriorityScheduler {
 
-	public DBPriorityScheduler(ScriptCollection collection, IO io,
+	public DBPriorityScheduler(DependencyGraph collection, IO io,
 			Monitoring monitoring, Dispatcher dispatcher) {
 		super(collection, io, monitoring, dispatcher);
 		// TODO Auto-generated constructor stub

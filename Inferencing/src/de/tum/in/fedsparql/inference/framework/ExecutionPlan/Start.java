@@ -20,12 +20,6 @@ public class Start extends ExecutionStep {
 	 */
 	public ExecutionStep next = null;
 
-	@Override
-	public String toString() {
-		return super.toString() + " -> " + this.next.getID();
-	}
-
-
 	/**
 	 * start execution
 	 */
@@ -37,9 +31,18 @@ public class Start extends ExecutionStep {
 		ExecutionThread thread = new ExecutionThread(this.next, scheduler);
 		thread.start();
 		thread.join();
-		
+
 		if (thread.exception != null) {
 			throw thread.exception;
 		}
+	}
+
+
+	/**
+	 * overridden toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString() + " -> " + this.next.getID();
 	}
 }

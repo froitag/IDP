@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
 import de.tum.in.fedsparql.inference.io.Monitoring;
@@ -39,12 +39,12 @@ public abstract class Scheduler {
 		}
 	}
 	
-	protected ScriptCollection collection;
+	protected DependencyGraph collection;
 	protected IO io;
 	protected Monitoring monitoring;
 	protected Dispatcher dispatcher;
 	
-	public Scheduler(ScriptCollection collection, IO io, Monitoring monitoring, Dispatcher dispatcher) {
+	public Scheduler(DependencyGraph collection, IO io, Monitoring monitoring, Dispatcher dispatcher) {
 		this.collection = collection;
 		this.io = io;
 		this.monitoring = monitoring;
@@ -65,7 +65,7 @@ public abstract class Scheduler {
 		return nodes.get(new Random().nextInt(nodes.size()));
 	}
 	
-	public void executeInternal(Script script, ScriptCollection collection) throws Exception {
+	public void executeInternal(Script script, DependencyGraph collection) throws Exception {
 		ThreadInfo threadInfo = new ThreadInfo(script);
 		
 		schedule(threadInfo);

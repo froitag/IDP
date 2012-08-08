@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
 import de.tum.in.fedsparql.inference.io.Monitoring;
@@ -23,7 +23,7 @@ public abstract class WindowedScheduler extends Scheduler {
 		}
 	}
 	
-	public WindowedScheduler(ScriptCollection collection, IO io,
+	public WindowedScheduler(DependencyGraph collection, IO io,
 			Monitoring monitoring, Dispatcher dispatcher) {
 		super(collection, io, monitoring, dispatcher);
 		// TODO Auto-generated constructor stub
