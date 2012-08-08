@@ -12,6 +12,11 @@ public class ScriptExecution extends ExecutionStep {
 	public ScriptExecution(Object ID) {
 		super(ID);
 	}
+	public ScriptExecution(Object ID, Script script, DependencyGraph dependencyGraph) {
+		this(ID);
+		this.script = script;
+		this.dependencyGraph = dependencyGraph;
+	}
 
 
 	/**
@@ -21,7 +26,7 @@ public class ScriptExecution extends ExecutionStep {
 	/**
 	 * ScriptCollection this.script belongs to
 	 */
-	public DependencyGraph scriptCollection=null;
+	public DependencyGraph dependencyGraph=null;
 	/**
 	 * Next step
 	 */
@@ -38,7 +43,7 @@ public class ScriptExecution extends ExecutionStep {
 			((ExecutionThread) Thread.currentThread()).executionStep = this;
 		}
 
-		scheduler.executeInternal(this.script, this.scriptCollection);
+		scheduler.executeInternal(this.script, this.dependencyGraph);
 		this.next.execute(scheduler);
 	}
 

@@ -16,6 +16,10 @@ public class SynchronizationPoint extends ExecutionStep {
 	public SynchronizationPoint(Object ID) {
 		super(ID);
 	}
+	public SynchronizationPoint(Object ID, ExecutionStep next) {
+		this(ID);
+		this.next = next;
+	}
 
 	/**
 	 * next step

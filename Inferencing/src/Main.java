@@ -1,6 +1,5 @@
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,14 +96,7 @@ public class Main {
 			String outputPNG = "graph.png";
 			System.out.println("GENERATING IMAGE: " + outputPNG);
 			try {
-				byte[] png = p.generatePNG();
-				if (png != null) {
-					FileOutputStream fos = new FileOutputStream(new File(outputPNG));
-					fos.write(png);
-					fos.close();
-				} else {
-					System.out.println("ERROR");
-				}
+				p.generatePNG().save(new File(outputPNG));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

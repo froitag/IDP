@@ -444,15 +444,16 @@ public class DependencyGraph {
 		return this;
 	}
 	/**
-	 * calculate the script dependencies
+	 * calculates the dependencies between the scripts
+	 * 
 	 * @return this for fluent interface
 	 */
 	protected DependencyGraph _calculateDependencies() {
 
-		_scriptDependencies = new HashMap<Script,Set<Script>>();
-		_scriptDependenciesVV = new HashMap<Script,Set<Script>>();
-		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>();
-		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>();
+		_scriptDependencies = new HashMap<Script,Set<Script>>(); // direct dependencies (key=script, value=set of scripts the first script depends on)
+		_scriptDependenciesVV = new HashMap<Script,Set<Script>>(); // direct dependencies vice versa (key=script, value=set of scripts that depend on the first script)
+		_scriptInheritedDependencies = new HashMap<Script,Set<Script>>(); // inherited dependencies (key=script, value=set of scripts the first script depends on)
+		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>(); // inherited dependencies vice versa (key=script, value=set of scripts that depend on the first script)
 		_containsCycles = false;
 
 
@@ -460,18 +461,14 @@ public class DependencyGraph {
 		for (Script script: _scripts) {
 			// add the scripts dependencies to the _scriptDependencies cache
 			_scriptDependencies.put(script, new HashSet<Script>());
-			_scriptInheritedDependencies.put(script, new HashSet<Script>());
-			_scriptInheritedDependenciesVV.put(script, new HashSet<Script>());
 
 			for (Database iDB: script.inputDatabases) {
 				if (!_outputRelations.containsKey(iDB)) continue;
 
 				for (Script dependency: _outputRelations.get(iDB)) {
-					if (_isManuallyRemovedDependency(script, dependency)) continue; // ignore the manually removed dependencies
-
+					if (_isManuallyRemovedDependency(script, dependency)) continue; // ignore manually removed dependencies
 
 					_scriptDependencies.get(script).add(dependency);
-
 					if (!_scriptDependenciesVV.containsKey(dependency)) {
 						_scriptDependenciesVV.put(dependency, new HashSet<Script>());
 					}
@@ -487,6 +484,10 @@ public class DependencyGraph {
 				if (!_scripts.contains(dep)) continue;
 
 				_scriptDependencies.get(script).add(dep);
+
+				if (!_scriptDependenciesVV.containsKey(dep)) {
+					_scriptDependenciesVV.put(dep, new HashSet<Script>());
+				}
 				_scriptDependenciesVV.get(dep).add(script);
 			}
 		}
@@ -496,6 +497,8 @@ public class DependencyGraph {
 		Set<Script> processed=new HashSet<Script>();
 		for (Script script: _scripts) {
 			if (processed.contains(script)) continue;
+
+			_scriptInheritedDependencies.put(script, new HashSet<Script>());
 
 			// walk through every available dependency path and check for circles + add dependencies to the cache
 			Queue<InheritedDependenciesQueueEntry> queue = new LinkedList<InheritedDependenciesQueueEntry>();
@@ -516,6 +519,9 @@ public class DependencyGraph {
 					if (_isManuallyRemovedDependency(pathEntry, qScript)) continue; // ignore the manually removed dependencies
 
 					_scriptInheritedDependencies.get(pathEntry).add(qScript);
+					if (!_scriptInheritedDependenciesVV.containsKey(qScript)) {
+						_scriptInheritedDependenciesVV.put(qScript, new HashSet<Script>());
+					}
 					_scriptInheritedDependenciesVV.get(qScript).add(pathEntry);
 				}
 
@@ -536,6 +542,9 @@ public class DependencyGraph {
 
 		return this;
 	}
+	/**
+	 * queue entry for calculating inherited dependencies
+	 */
 	protected class InheritedDependenciesQueueEntry {
 		public Script script;
 		public List<Script> path;
@@ -545,6 +554,12 @@ public class DependencyGraph {
 			this.path = path;
 		}
 	}
+	/**
+	 * checks if a given dependency was manually removed using this.addDependency or not.
+	 * 
+	 * @param script
+	 * @param dependency
+	 */
 	protected boolean _isManuallyRemovedDependency(Script script, Script dependency) {
 		return (_removedDependencies.containsKey(script) && _removedDependencies.get(script).contains(dependency));
 		// ignore the manually removed dependencies
@@ -564,6 +579,7 @@ public class DependencyGraph {
 
 		return ret;
 	}
+
 
 	/* protected member */
 	/** this collection's scripts */
