@@ -25,7 +25,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.GUI.EdgeClass;
 import de.tum.in.fedsparql.inference.framework.GUI.EditingModalGraphMouseExtension;
 import de.tum.in.fedsparql.inference.framework.GUI.GUI;
@@ -109,12 +109,12 @@ public class GraphView extends JPanel {
 			scriptArray[i] = scriptList.get(i);
 		}
 
-		ScriptCollection scripts = null;
-		scripts = new ScriptCollection(scriptArray);
+		DependencyGraph scripts = null;
+		scripts = new DependencyGraph(scriptArray);
 		for (EdgeClass edge : gui.getDeletedEdges()) {
 			scripts.removeDependency(edge.vertex1, edge.vertex2);
 		}
-		gui.setScriptCollection(scripts);
+		gui.setDependencyGraph(scripts);
 
 		g = new SparseMultigraph<Script, EdgeClass>();
 

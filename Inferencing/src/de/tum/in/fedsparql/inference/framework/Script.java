@@ -1,6 +1,5 @@
 package de.tum.in.fedsparql.inference.framework;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

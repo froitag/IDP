@@ -13,24 +13,24 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
-import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
 public class ExecutionPlan {
 
 	/**
-	 * constructor
+	 * Creates an ExecutionPlan.
 	 * 
-	 * @param _sc
-	 * @throws CircularDependencyException
+	 * @param dGraph DependencyGraph to create a ExecutionPlan for
+	 * @throws CircularDependencyException if the given DependencyGraph contains circular-dependencies
 	 */
-	public ExecutionPlan(DependencyGraph sc) throws CircularDependencyException {
-		if (sc.containsCycle()) {
+	public ExecutionPlan(DependencyGraph dGraph) throws CircularDependencyException {
+		if (dGraph.containsCycle()) {
 			throw new CircularDependencyException("ScriptCollection contains circular dependencies! Please remove all cycles..");
 		}
-		_sc = new DependencyGraph(sc);
+		_dGraph = new DependencyGraph(dGraph);
 
 		int stepId=0;
 
@@ -45,7 +45,7 @@ public class ExecutionPlan {
 		_steps.add(_endStep);
 
 		// add initial
-		processableScripts = _sc.getIndependentScripts();
+		processableScripts = _dGraph.getIndependentScripts();
 		if (processableScripts.size() > 0) {
 			if (processableScripts.size() > 1) { // FORK
 				Fork f = new Fork(++stepId); // create fork
@@ -55,7 +55,7 @@ public class ExecutionPlan {
 					// create _scriptExecution step
 					ScriptExecution se = new ScriptExecution(++stepId);
 					se.script = script;
-					se.scriptCollection = sc;
+					se.scriptCollection = dGraph;
 					_steps.add(se);
 
 					f.branches.add(se);
@@ -66,7 +66,7 @@ public class ExecutionPlan {
 			} else { // single execution
 				ScriptExecution se = new ScriptExecution(++stepId);
 				se.script = processableScripts.iterator().next();
-				se.scriptCollection = sc;
+				se.scriptCollection = dGraph;
 				currentExecs.add(se);
 
 				_startStep.next = se;
@@ -89,7 +89,7 @@ public class ExecutionPlan {
 		 */
 
 		Map<Script,SynchronizationPoint> synchPoints=new HashMap<Script,SynchronizationPoint>();
-		Set<Script> availableScripts = _sc.getScripts();
+		Set<Script> availableScripts = _dGraph.getScripts();
 		while (done_scripts.size() < availableScripts.size() && currentExecs.size()>0) { // loop until all _scripts were processed
 
 
@@ -97,7 +97,7 @@ public class ExecutionPlan {
 			for (ScriptExecution exec: currentExecs) { // loop through the current _scriptExecution steps
 
 				done_scripts.add(exec.script);
-				Set<Script> execNextScripts = _sc.getDirectDependentScripts(exec.script);
+				Set<Script> execNextScripts = _dGraph.getDirectDependentScripts(exec.script);
 
 				if (execNextScripts.size() == 0) {
 
@@ -111,7 +111,7 @@ public class ExecutionPlan {
 
 					// the link type depends on the dependencies of the script
 					Script script = execNextScripts.iterator().next();
-					Set<Script> scriptDeps = _sc.getDirectDependencies(script);
+					Set<Script> scriptDeps = _dGraph.getDirectDependencies(script);
 
 					if (scriptDeps.size() > 1) {
 						// SYNCH POINT
@@ -120,7 +120,7 @@ public class ExecutionPlan {
 							// create script execution that follows synch point
 							ScriptExecution se = new ScriptExecution(++stepId);
 							se.script = script;
-							se.scriptCollection = sc;
+							se.scriptCollection = dGraph;
 
 							nextExecs.add(se);
 							_steps.add(se);
@@ -138,7 +138,7 @@ public class ExecutionPlan {
 					} else {
 						// SEQUENTIAL SCRIPT EXECUTION
 						ScriptExecution se = new ScriptExecution(++stepId);
-						se.scriptCollection = sc;
+						se.scriptCollection = dGraph;
 						se.script = script;
 
 						exec.next = se;
@@ -156,7 +156,7 @@ public class ExecutionPlan {
 
 					for (Script script: execNextScripts) {
 						// the link type depends on the dependencies of the script
-						Set<Script> scriptDeps = _sc.getDirectDependencies(script);
+						Set<Script> scriptDeps = _dGraph.getDirectDependencies(script);
 
 						if (scriptDeps.size() > 1) {
 							// SYNCH POINT
@@ -165,7 +165,7 @@ public class ExecutionPlan {
 								// create script execution that follows synch point
 								ScriptExecution se = new ScriptExecution(++stepId);
 								se.script = script;
-								se.scriptCollection = sc;
+								se.scriptCollection = dGraph;
 
 								nextExecs.add(se);
 								_steps.add(se);
@@ -184,7 +184,7 @@ public class ExecutionPlan {
 
 							ScriptExecution se = new ScriptExecution(++stepId);
 							se.script = script;
-							se.scriptCollection = sc;
+							se.scriptCollection = dGraph;
 
 							f.branches.add(se);
 							nextExecs.add(se);
@@ -215,17 +215,23 @@ public class ExecutionPlan {
 	}
 	/**
 	 * run plan
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void execute(Scheduler dispatcher) throws Exception {
 		_startStep.execute(dispatcher);
 	}
 
+	/**
+	 * generates a PNG-Graph using PlantUML+GraphVIZ
+	 * @return byte array containing the PNG || NULL if generation failed
+	 */
 	public byte[] generatePNG() {
 
+		// assemble PlantUML graph description string
 		String source = "";
 		source += "@startuml\n";
 
+		// walk through the ExecutionPlan using a Queue starting with this.getStartStep()
 		Queue<QueueEntry> queue = new LinkedList<QueueEntry>();
 		queue.add(new QueueEntry(this.getStartStep(),Arrays.asList(new ExecutionStep[0])));
 
@@ -233,12 +239,14 @@ public class ExecutionPlan {
 		while (!queue.isEmpty()) {
 			QueueEntry curStep = queue.remove();
 
+			//
 			List<QueueEntry> toAdd=new ArrayList<QueueEntry>();
-
-
 			if (curStep.step instanceof Start) {
+
 				toAdd.add(new QueueEntry(((Start)curStep.step).next, Arrays.asList(new ExecutionStep[]{curStep.step})));
+
 			} else if (curStep.step instanceof Finish) {
+
 				for (ExecutionStep previousStep: curStep.previousSteps) {
 					String edge = _stepToName(previousStep) + " -right-> " + _stepToName(curStep.step) + "\n";
 					if (!alreadyAdded.contains(edge)) {
@@ -246,16 +254,22 @@ public class ExecutionPlan {
 						alreadyAdded.add(edge);
 					}
 				}
+
 			} else if (curStep.step instanceof Fork) {
+
 				Fork fork = (Fork) curStep.step;
 				for (ExecutionStep nextStep: fork.branches) {
 					toAdd.add(
 							new QueueEntry(nextStep, curStep.previousSteps)
 							);
 				}
+
 			} else if (curStep.step instanceof SynchronizationPoint) {
+
 				toAdd.add(new QueueEntry(((SynchronizationPoint)curStep.step).next, curStep.previousSteps));
+
 			} else if (curStep.step instanceof ScriptExecution) {
+
 				for (ExecutionStep previousStep: curStep.previousSteps) {
 					String edge = _stepToName(previousStep) + " --> " + _stepToName(curStep.step) + "\n";
 					if (!alreadyAdded.contains(edge)) {
@@ -265,23 +279,25 @@ public class ExecutionPlan {
 				}
 
 				toAdd.add(new QueueEntry(((ScriptExecution)curStep.step).next, Arrays.asList(new ExecutionStep[]{curStep.step})));
+
 			}
 
-			for (QueueEntry add: toAdd) {
-				queue.add(add);
-			}
+			queue.addAll(toAdd);
+			//			for (QueueEntry add: toAdd) {
+			//				queue.add(add);
+			//			}
 		}
-
 
 		source += "@enduml\n";
 		System.out.println(source);
 
+
+		// create PNG from `source`-String
 		try {
 			SourceStringReader reader = new SourceStringReader(source);
 			ByteArrayOutputStream png = new ByteArrayOutputStream();
 			String desc = reader.generateImage(png);
 
-			// Return a null string if no generation
 			if (desc != null) {
 				return png.toByteArray();
 			}
@@ -290,7 +306,6 @@ public class ExecutionPlan {
 
 		return null;
 	}
-
 	class QueueEntry {
 		public ExecutionStep step;
 		public List<ExecutionStep> previousSteps;
@@ -329,8 +344,9 @@ public class ExecutionPlan {
 		return null;
 	}
 
+
 	/* protected member */
-	protected DependencyGraph _sc;
+	protected DependencyGraph _dGraph;
 	protected Set<ExecutionStep> _steps=new HashSet<ExecutionStep>();
 	protected Start _startStep;
 	protected Finish _endStep;

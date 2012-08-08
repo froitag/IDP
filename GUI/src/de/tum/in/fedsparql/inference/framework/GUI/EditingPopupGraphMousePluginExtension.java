@@ -92,7 +92,7 @@ public class EditingPopupGraphMousePluginExtension<V,E> extends EditingPopupGrap
                             System.err.println(gui.getDeletedEdges().size());
                             gui.getDeletedEdges().remove(edgeClass);
                             System.err.println(gui.getDeletedEdges().size());
-                            gui.getScriptCollection().addDependency(edgeClass.vertex1, edgeClass.vertex2);
+                            gui.getDependencyGraph().addDependency(edgeClass.vertex1, edgeClass.vertex2);
                             vv.repaint();
                         }});
             	} else {
@@ -102,7 +102,7 @@ public class EditingPopupGraphMousePluginExtension<V,E> extends EditingPopupGrap
                             //graph.removeEdge(edge);
                             edgeClass.setDeleted(true);
                             gui.getDeletedEdges().add(edgeClass);
-                            gui.getScriptCollection().removeDependency(edgeClass.vertex1, edgeClass.vertex2);
+                            gui.getDependencyGraph().removeDependency(edgeClass.vertex1, edgeClass.vertex2);
                             vv.repaint();
                         }});
             	}

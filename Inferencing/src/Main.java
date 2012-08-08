@@ -27,7 +27,6 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 
-
 		// set up scripts
 		Script r1 = new Script(
 				"r1", // script-name
@@ -102,6 +101,7 @@ public class Main {
 				if (png != null) {
 					FileOutputStream fos = new FileOutputStream(new File(outputPNG));
 					fos.write(png);
+					fos.close();
 				} else {
 					System.out.println("ERROR");
 				}
@@ -132,14 +132,18 @@ public class Main {
 			io.register(io.getNodeByName("Node3"), new JenaDatabase("e"));
 
 			// execute execution plan
+			Thread.currentThread().setName("MAIN");
 			Scheduler dispatcher = new DBPriorityScheduler(dGraph, io, new DummyMonitoring(), new DummyDispatcher());
 			System.out.println("EXECUTING:");
 			p.execute(dispatcher);
+			System.out.println("-FINISHED EXECUTION-");
 		} catch (CircularDependencyException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		System.out.println("Main finished");
 	}
 
 }

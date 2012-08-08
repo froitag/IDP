@@ -19,6 +19,8 @@ class ExecutionThread extends Thread {
 	public ExecutionThread(ExecutionStep step, Scheduler scheduler) {
 		this.executionStep = step;
 		this.scheduler = scheduler;
+
+		this.setName("ExecutionThread: " + this.executionStep.toString());
 	}
 
 

@@ -23,7 +23,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.framework.ScriptCollection;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Database;
 
 public class GUI {
@@ -34,7 +34,7 @@ public class GUI {
 	private JList<String> list;
 	private ArrayList<ScriptForm> scriptFormList = new ArrayList<ScriptForm>();
 	private static ArrayList<Database> databaseList = new ArrayList<Database>();
-	private ScriptCollection scriptCollection;
+	private DependencyGraph DependencyGraph;
 	private HashSet<EdgeClass> deletedEdges = new HashSet<EdgeClass>();
 
 	JButton btnShowGraph;
@@ -208,12 +208,12 @@ public class GUI {
 		return databaseList;
 	}
 
-	public ScriptCollection getScriptCollection() {
-		return scriptCollection;
+	public DependencyGraph getDependencyGraph() {
+		return DependencyGraph;
 	}
 
-	public void setScriptCollection(ScriptCollection scriptCollection) {
-		this.scriptCollection = scriptCollection;
+	public void setDependencyGraph(DependencyGraph DependencyGraph) {
+		this.DependencyGraph = DependencyGraph;
 	}
 
 	public HashSet<EdgeClass> getDeletedEdges() {

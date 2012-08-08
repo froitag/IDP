@@ -26,7 +26,7 @@ public class PlanView extends JPanel {
 	public PlanView(GUI gui) {
 		
 		try {
-			plan = new ExecutionPlan(gui.getScriptCollection());
+			plan = new ExecutionPlan(gui.getDependencyGraph());
 		} catch (CircularDependencyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
