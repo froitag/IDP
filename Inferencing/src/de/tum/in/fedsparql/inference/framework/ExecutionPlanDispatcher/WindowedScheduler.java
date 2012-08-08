@@ -64,4 +64,9 @@ public abstract class WindowedScheduler extends Scheduler {
 			}
 		}
 	}
+
+	@Override
+	public void dispose() {
+		timer.cancel();
+	}
 }

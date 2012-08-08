@@ -219,6 +219,7 @@ public class ExecutionPlan {
 	 */
 	public void execute(Scheduler dispatcher) throws Exception {
 		_startStep.execute(dispatcher);
+		dispatcher.dispose();
 	}
 
 	/**
