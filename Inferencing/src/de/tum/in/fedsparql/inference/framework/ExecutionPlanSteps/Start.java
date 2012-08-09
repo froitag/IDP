@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+package de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps;
 
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
 
@@ -24,13 +24,14 @@ public class Start extends ExecutionStep {
 	 * start execution
 	 */
 	@Override
-	void execute(Scheduler scheduler) throws Exception {
+	public void execute(Scheduler scheduler) throws Exception {
 		System.out.println("START");
 
 		// start execution in new thread
 		ExecutionThread thread = new ExecutionThread(this.next, scheduler);
 		thread.start();
 		thread.join();
+		scheduler.dispose();
 
 		if (thread.exception != null) {
 			throw thread.exception;

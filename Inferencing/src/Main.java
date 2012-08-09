@@ -10,11 +10,11 @@ import de.tum.in.fedsparql.inference.dummy.DummyIO;
 import de.tum.in.fedsparql.inference.dummy.DummyMonitoring;
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionPlan;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan.ExecutionStep;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.DBPriorityScheduler;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 import de.tum.in.fedsparql.inference.io.Node;
 

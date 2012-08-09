@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+package de.tum.in.fedsparql.inference.framework;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,6 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Finish;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecution;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
 
 import net.sourceforge.plantuml.SourceStringReader;
 

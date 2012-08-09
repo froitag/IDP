@@ -1,13 +1,17 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+package de.tum.in.fedsparql.inference.framework;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
-import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Finish;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecution;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
 import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
 
 /**
@@ -46,7 +50,6 @@ public class ExecutionPlan {
 	 */
 	public void execute(Scheduler dispatcher) throws Exception {
 		_startStep.execute(dispatcher);
-		dispatcher.dispose();
 	}
 
 	/**
@@ -78,6 +81,11 @@ public class ExecutionPlan {
 		 * 3. recalculate dependencies and start again at (1)
 		 * 
 		 * if the graph doesn't contain circles this method will determine with no items left
+		 * ----------------------------------------------
+		 * 
+		 * the recalculation of the dependencies, thus finding out what the independent items for the next run are,
+		 * is done by adding a script (more specific: it's ScriptExecution object) to `independentExecutionSteps` as soon as its direct predecessor was processed.
+		 * => `independentExecutionSteps` always contains the independent items for the next run
 		 */
 		int stepId=0;
 
@@ -92,13 +100,13 @@ public class ExecutionPlan {
 		_steps.add(_endStep);
 
 		// initialize search, start with scripts that don't depend on any other scripts
-		Set<Script> processableScripts = _dGraph.getIndependentScripts();
-		if (processableScripts.size() > 0) {
-			if (processableScripts.size() > 1) { // FORK
+		Set<Script> startScripts = _dGraph.getIndependentScripts();
+		if (startScripts.size() > 0) {
+			if (startScripts.size() > 1) { // FORK
 				Fork f = new Fork(++stepId); // create fork
 				_steps.add(f);
 
-				for (Script script: processableScripts) {
+				for (Script script: startScripts) {
 					// create _scriptExecution step
 					ScriptExecution se = new ScriptExecution(++stepId, script, _dGraph);
 					_steps.add(se);
@@ -109,7 +117,7 @@ public class ExecutionPlan {
 
 				_startStep.next = f;
 			} else { // single execution
-				ScriptExecution se = new ScriptExecution(++stepId, processableScripts.iterator().next(), _dGraph);
+				ScriptExecution se = new ScriptExecution(++stepId, startScripts.iterator().next(), _dGraph);
 				independentExecutionSteps.add(se);
 
 				_startStep.next = se;

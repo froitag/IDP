@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+package de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps;
 
 import java.util.ArrayList;
 import java.util.HashSet;
