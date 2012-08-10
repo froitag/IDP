@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.plan;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,24 +15,20 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Finish;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecution;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
+import de.tum.in.fedsparql.inference.framework.APng;
+import de.tum.in.fedsparql.inference.framework.Script;
 
 /**
  * generates a PNG-Graph for a given ExecutionPlan
  */
-public class ExecutionPlanPNG extends APNG {
+public class ExecutionPlanPng extends APng {
 
 	/* constructors */
 	/**
 	 * creates a ExecutionPlanPNG given a specific plan.
 	 * @param plan
 	 */
-	public ExecutionPlanPNG(ExecutionPlan plan) {
+	public ExecutionPlanPng(ExecutionPlan plan) {
 		_png = _genPNG(plan);
 	}
 

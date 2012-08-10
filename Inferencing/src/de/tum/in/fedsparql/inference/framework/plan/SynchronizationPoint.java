@@ -1,9 +1,9 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps;
+package de.tum.in.fedsparql.inference.framework.plan;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 
 
 /**

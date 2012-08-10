@@ -1,6 +1,6 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps;
+package de.tum.in.fedsparql.inference.framework.plan;
 
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 
 /**
  * general execution step

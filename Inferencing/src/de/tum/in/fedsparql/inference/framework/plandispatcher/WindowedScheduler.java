@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher;
+package de.tum.in.fedsparql.inference.framework.plandispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
 import de.tum.in.fedsparql.inference.io.Monitoring;

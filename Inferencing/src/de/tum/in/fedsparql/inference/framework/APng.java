@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public abstract class APNG {
+/**
+ * Abstract PNG
+ * defines an Interface + some methods for commonly used PNGs
+ */
+public abstract class APng {
 
 	/* public methods */
 	/**

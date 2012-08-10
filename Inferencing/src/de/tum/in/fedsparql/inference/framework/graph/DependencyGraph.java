@@ -1,5 +1,5 @@
 
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.Script;
 
 
 /**
@@ -444,8 +447,8 @@ public class DependencyGraph extends de.tum.in.fedsparql.inference.DependencyGra
 	/**
 	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
 	 */
-	public DependencyGraphPNG generatePNG() {
-		return new DependencyGraphPNG(this);
+	public DependencyGraphPng generatePNG() {
+		return new DependencyGraphPng(this);
 	}
 
 	/* protected helper */

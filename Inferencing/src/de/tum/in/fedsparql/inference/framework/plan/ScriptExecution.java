@@ -1,8 +1,8 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps;
+package de.tum.in.fedsparql.inference.framework.plan;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 
 /**
  * Script Execution

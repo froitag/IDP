@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.graph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,20 +7,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.tum.in.fedsparql.inference.framework.APng;
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.Script;
+
 import net.sourceforge.plantuml.SourceStringReader;
 
 
 /**
  * generates a PNG-Graph for a given DependencyGraph
  */
-public class DependencyGraphPNG extends APNG {
+public class DependencyGraphPng extends APng {
 
 	/* constructors */
 	/**
 	 * creates a DependencyGraphPNG given a specific graph.
 	 * @param plan
 	 */
-	public DependencyGraphPNG(DependencyGraph dGraph) {
+	public DependencyGraphPng(DependencyGraph dGraph) {
 		_png = _genPNG(dGraph);
 	}
 

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.exceptions;
+package de.tum.in.fedsparql.inference.framework.xceptions;
 
 /**
  * Exception stating that a dependency cycle within a DependencyGraph disturbed the processing.

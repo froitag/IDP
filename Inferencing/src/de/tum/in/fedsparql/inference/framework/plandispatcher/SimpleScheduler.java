@@ -1,6 +1,6 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher;
+package de.tum.in.fedsparql.inference.framework.plandispatcher;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
 import de.tum.in.fedsparql.inference.io.Monitoring;

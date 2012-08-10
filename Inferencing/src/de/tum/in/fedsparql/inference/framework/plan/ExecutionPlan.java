@@ -1,18 +1,14 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.plan;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Finish;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecution;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
-import de.tum.in.fedsparql.inference.framework.exceptions.DependencyCycleException;
+import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
+import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
 
 /**
  * Creates an ExecutionPlan from a DependencyGraph
@@ -63,8 +59,8 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	/**
 	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
 	 */
-	public ExecutionPlanPNG generatePNG() {
-		return new ExecutionPlanPNG(this);
+	public ExecutionPlanPng generatePNG() {
+		return new ExecutionPlanPng(this);
 	}
 
 

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher;
+package de.tum.in.fedsparql.inference.framework.plandispatcher;
 
 public class NoNodeException extends Exception {
 
