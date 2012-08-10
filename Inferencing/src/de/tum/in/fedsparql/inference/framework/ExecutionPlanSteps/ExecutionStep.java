@@ -7,14 +7,20 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
  */
 public abstract class ExecutionStep {
 
-	protected Object _ID=null;
-
+	/* constructors */
+	/**
+	 * ExecutionStep Constructors must at least take the Step's ID !
+	 * 
+	 * @param ID the step's ID
+	 */
 	public ExecutionStep(Object ID) {
 		_ID = ID;
 	}
 
+
+	/* public methods */
 	/**
-	 * returns the ID of this ExecutionStep
+	 * @return the ID of this ExecutionStep
 	 */
 	public Object getID() {
 		return _ID;
@@ -28,6 +34,7 @@ public abstract class ExecutionStep {
 	abstract void execute(Scheduler scheduler) throws Exception;
 
 
+	/* overridden methods */
 	/**
 	 * overridden toString()
 	 */
@@ -35,4 +42,8 @@ public abstract class ExecutionStep {
 	public String toString() {
 		return _ID+"#"+this.getClass().getSimpleName();
 	}
+
+
+	/* protected member */
+	protected Object _ID=null;
 }

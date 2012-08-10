@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.io.Database;
 
 /**
  * representing a script which can be executed on de.tum.in.fedsparql.inference.io.Databases
@@ -21,11 +20,11 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 	/**
 	 * Set of Databases the Script reads from
 	 */
-	public Set<Database> inputDatabases;
+	public Set<DatabaseID> inputDatabases;
 	/**
 	 * Set of Databases the Script writes to
 	 */
-	public Set<Database> outputDatabases;
+	public Set<DatabaseID> outputDatabases;
 	/**
 	 * The actual JavaScript
 	 */
@@ -37,7 +36,7 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 	 * constructors
 	 */
 	public Script(String id) {
-		this(id, new Database[]{}, new Database[]{}, "");
+		this(id, new DatabaseID[]{}, new DatabaseID[]{}, "");
 	}
 	/**
 	 * Constructor.
@@ -48,11 +47,11 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 	 * @param outputDatabases Set of Databases the Script writes to
 	 * @param jScript The actual JavaScript
 	 */
-	public Script(String id, Database[] inputDatabases, Database[] outputDatabases, String jScript) {
+	public Script(String id, DatabaseID[] inputDatabases, DatabaseID[] outputDatabases, String jScript) {
 		super(null, null, id, jScript);
 		this.id = id;
-		this.inputDatabases = new HashSet<Database>(Arrays.asList(inputDatabases));
-		this.outputDatabases = new HashSet<Database>(Arrays.asList(outputDatabases));
+		this.inputDatabases = new HashSet<DatabaseID>(Arrays.asList(inputDatabases));
+		this.outputDatabases = new HashSet<DatabaseID>(Arrays.asList(outputDatabases));
 		this.jScript = jScript;
 	}
 	/**
@@ -64,8 +63,8 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 	public Script(Script script) {
 		super(null, null, script.id, script.jScript);
 		this.id = script.id;
-		this.inputDatabases = new HashSet<Database>(script.inputDatabases);
-		this.outputDatabases = new HashSet<Database>(script.outputDatabases);
+		this.inputDatabases = new HashSet<DatabaseID>(script.inputDatabases);
+		this.outputDatabases = new HashSet<DatabaseID>(script.outputDatabases);
 		this.jScript = script.jScript;
 	}
 

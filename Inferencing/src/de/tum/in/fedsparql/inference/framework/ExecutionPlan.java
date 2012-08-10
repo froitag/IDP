@@ -12,7 +12,7 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecution;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
-import de.tum.in.fedsparql.inference.framework.exceptions.CircularDependencyException;
+import de.tum.in.fedsparql.inference.framework.exceptions.DependencyCycleException;
 
 /**
  * Creates an ExecutionPlan from a DependencyGraph
@@ -23,9 +23,9 @@ public class ExecutionPlan {
 	 * Creates an ExecutionPlan.
 	 * 
 	 * @param _dGraph DependencyGraph to create a ExecutionPlan for
-	 * @throws CircularDependencyException if the given DependencyGraph contains circular-dependencies
+	 * @throws DependencyCycleException if the given DependencyGraph contains circular-dependencies
 	 */
-	public ExecutionPlan(DependencyGraph dGraph) throws CircularDependencyException {
+	public ExecutionPlan(DependencyGraph dGraph) throws DependencyCycleException {
 		_dGraph = new DependencyGraph(dGraph);
 		_genPlan();
 	}
@@ -68,9 +68,9 @@ public class ExecutionPlan {
 
 
 	/* protected methods */
-	protected void _genPlan() throws CircularDependencyException {
+	protected void _genPlan() throws DependencyCycleException {
 		if (_dGraph.containsCycle()) {
-			throw new CircularDependencyException("ScriptCollection contains circular dependencies! Please remove all cycles..");
+			throw new DependencyCycleException("DependencyGraph contains circular dependencies! Please remove all cycles..");
 		}
 
 		/*
@@ -80,7 +80,7 @@ public class ExecutionPlan {
 		 * 2. remove the processed items
 		 * 3. recalculate dependencies and start again at (1)
 		 * 
-		 * if the graph doesn't contain circles this method will determine with no items left
+		 * if the graph doesn't contain cycles this method will determine with no items to process left
 		 * ----------------------------------------------
 		 * 
 		 * the recalculation of the dependencies, thus finding out what the independent items for the next run are,

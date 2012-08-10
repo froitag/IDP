@@ -7,20 +7,13 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
 
 
 /**
- * Synchronization Point.
+ * Execution Synchronization Point.
  * Merges multiple parallel execution paths.
  * Terminates Threads of dead paths.
  */
 public class SynchronizationPoint extends ExecutionStep {
 
-	public SynchronizationPoint(Object ID) {
-		super(ID);
-	}
-	public SynchronizationPoint(Object ID, ExecutionStep next) {
-		this(ID);
-		this.next = next;
-	}
-
+	/* public member */
 	/**
 	 * next step
 	 */
@@ -31,6 +24,24 @@ public class SynchronizationPoint extends ExecutionStep {
 	public Set<ExecutionStep> waitFor=new HashSet<ExecutionStep>();
 
 
+	/* constructors */
+	/**
+	 * @param ID this step's ID
+	 */
+	public SynchronizationPoint(Object ID) {
+		super(ID);
+	}
+	/**
+	 * @param ID this step's ID
+	 * @param next the step that follows the synchronization
+	 */
+	public SynchronizationPoint(Object ID, ExecutionStep next) {
+		this(ID);
+		this.next = next;
+	}
+
+
+	/* overridden methods */
 	/**
 	 * merge execution
 	 * @throws Exception
@@ -62,8 +73,6 @@ public class SynchronizationPoint extends ExecutionStep {
 			}
 		}
 	}
-	protected Set<ExecutionStep> _doneSteps=new HashSet<ExecutionStep>();
-
 
 	/**
 	 * overridden toString()
@@ -78,4 +87,8 @@ public class SynchronizationPoint extends ExecutionStep {
 
 		return str;
 	}
+
+
+	/* protected member */
+	protected Set<ExecutionStep> _doneSteps=new HashSet<ExecutionStep>();
 }

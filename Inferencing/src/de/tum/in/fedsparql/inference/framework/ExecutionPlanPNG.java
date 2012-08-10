@@ -6,12 +6,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import net.sourceforge.plantuml.SourceStringReader;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ExecutionStep;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Finish;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Fork;
@@ -19,12 +22,10 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.ScriptExecutio
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.Start;
 import de.tum.in.fedsparql.inference.framework.ExecutionPlanSteps.SynchronizationPoint;
 
-import net.sourceforge.plantuml.SourceStringReader;
-
 /**
  * generates a PNG-Graph for a given ExecutionPlan
  */
-public class ExecutionPlanPNG {
+public class ExecutionPlanPNG extends APNG {
 
 	/* constructors */
 	/**
@@ -40,6 +41,7 @@ public class ExecutionPlanPNG {
 	/**
 	 * gets the PNG in byte representation
 	 */
+	@Override
 	public byte[] getBytes() {
 		return _png;
 	}
@@ -49,6 +51,7 @@ public class ExecutionPlanPNG {
 	 * @param file
 	 * @throws IOException
 	 */
+	@Override
 	public void save(File file) throws IOException {
 		if (_png != null) {
 			FileOutputStream fos = new FileOutputStream(file);
@@ -67,6 +70,21 @@ public class ExecutionPlanPNG {
 		// assemble PlantUML graph description string
 		String source = "";
 		source += "@startuml\n";
+		source += "title Execution-Plan\n";
+
+		// create synonyms for each script
+		int i=0;
+		for (Script script: plan.getDependencyGraph().getScripts()) {
+			_plantIDs.put(script, "s"+(i++));
+		}
+
+		// create graph
+		// annotate scripts with in+out DBs
+		for (Script script: _plantIDs.keySet()) {
+			source += "state \""+script.id+"\" as "+_plantIDs.get(script)+"\n";
+			source += _plantIDs.get(script)+" : in = " + script.inputDatabases + "\n";
+			source += _plantIDs.get(script)+" : out = " + script.outputDatabases + "\n";
+		}
 
 		// walk through the ExecutionPlan using a Queue starting with plan.getStartStep()
 		Queue<PlanProcessingQueueEntry> queue = new LinkedList<PlanProcessingQueueEntry>();
@@ -155,7 +173,7 @@ public class ExecutionPlanPNG {
 		} else if (step instanceof SynchronizationPoint) {
 			return null;
 		} else if (step instanceof ScriptExecution) {
-			return ((ScriptExecution)step).script.id;
+			return _plantIDs.get(((ScriptExecution)step).script);
 		}
 
 		return null;
@@ -188,5 +206,5 @@ public class ExecutionPlanPNG {
 
 
 	/* protected member */
-	protected byte[] _png;
+	protected Map<Script,String> _plantIDs=new HashMap<Script,String>();
 }

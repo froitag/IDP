@@ -23,14 +23,9 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
-import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
 import de.tum.in.fedsparql.inference.framework.DependencyGraph;
-import de.tum.in.fedsparql.inference.framework.GUI.EdgeClass;
-import de.tum.in.fedsparql.inference.framework.GUI.EditingModalGraphMouseExtension;
-import de.tum.in.fedsparql.inference.framework.GUI.GUI;
-import de.tum.in.fedsparql.inference.framework.GUI.ScriptForm;
-import de.tum.in.fedsparql.inference.io.Database;
+import de.tum.in.fedsparql.inference.framework.Script;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -90,13 +85,13 @@ public class GraphView extends JPanel {
 			}
 
 			String name = form.getTextField();
-			Database[] inputArray = new Database[inputList.size()];
+			DatabaseID[] inputArray = new DatabaseID[inputList.size()];
 			for (int i = 0; i < inputList.size(); i++) {
-				inputArray[i] = new JenaDatabase(inputList.get(i));
+				inputArray[i] = new DatabaseID(inputList.get(i));
 			}
-			Database[] outputArray = new Database[outputList.size()];
+			DatabaseID[] outputArray = new DatabaseID[outputList.size()];
 			for (int i = 0; i < outputList.size(); i++) {
-				outputArray[i] = new JenaDatabase(outputList.get(i));
+				outputArray[i] = new DatabaseID(outputList.get(i));
 			}
 			String scriptCode = form.getTextArea().getText();
 

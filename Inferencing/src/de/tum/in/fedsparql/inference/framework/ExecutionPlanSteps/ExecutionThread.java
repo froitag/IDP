@@ -10,12 +10,17 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
  */
 class ExecutionThread extends Thread {
 
+	/* public member */
 	public ExecutionStep executionStep;
 	public Scheduler scheduler;
-
 	public Exception exception = null;
 
 
+	/* constructors */
+	/**
+	 * @param step the ExecutionStep this Thread should execute
+	 * @param scheduler the Scheduler to use for the execution
+	 */
 	public ExecutionThread(ExecutionStep step, Scheduler scheduler) {
 		this.executionStep = step;
 		this.scheduler = scheduler;
@@ -24,6 +29,10 @@ class ExecutionThread extends Thread {
 	}
 
 
+	/* overridden methods */
+	/**
+	 * Calls this.executionStep's execute() + saves a thrown exception in this.exception
+	 */
 	@Override
 	public void run() {
 		try {

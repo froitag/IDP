@@ -22,9 +22,8 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.io.Database;
 
 public class ScriptForm extends JPanel {
 
@@ -201,11 +200,11 @@ public class ScriptForm extends JPanel {
 		return textArea;
 	}
 
-	Set<Database> createDatabaseSet(TableModel model) {
-		HashSet<Database> set = new HashSet<Database>();
+	Set<DatabaseID> createDatabaseSet(TableModel model) {
+		HashSet<DatabaseID> set = new HashSet<DatabaseID>();
 		for (int i = 0; i < model.getRowCount() - 1; i++) {
 			if ((boolean)model.getValueAt(i, 0)) {
-				set.add(new JenaDatabase(((String)model.getValueAt(i, 1))));
+				set.add(new DatabaseID(((String)model.getValueAt(i, 1))));
 			}
 		}
 		return set;

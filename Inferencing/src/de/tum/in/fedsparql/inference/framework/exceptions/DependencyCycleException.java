@@ -1,9 +1,9 @@
 package de.tum.in.fedsparql.inference.framework.exceptions;
 
 /**
- * Exception stating that a Circular Dependency within a ScriptCollection disturbed the processing.
+ * Exception stating that a dependency cycle within a DependencyGraph disturbed the processing.
  */
-public class CircularDependencyException extends Exception {
+public class DependencyCycleException extends Exception {
 
 	/*
 	 * constructors
@@ -11,19 +11,19 @@ public class CircularDependencyException extends Exception {
 	/**
 	 * @see Exception#Exception(String)
 	 */
-	public CircularDependencyException(String message) {
+	public DependencyCycleException(String message) {
 		super(message);
 	}
 	/**
 	 * @see Exception#Exception(Throwable)
 	 */
-	public CircularDependencyException(Throwable cause) {
+	public DependencyCycleException(Throwable cause) {
 		super(cause);
 	}
 	/**
 	 * @see Exception#Exception(String, Throwable)
 	 */
-	public CircularDependencyException(String message, Throwable cause) {
+	public DependencyCycleException(String message, Throwable cause) {
 		super(message,cause);
 	}
 

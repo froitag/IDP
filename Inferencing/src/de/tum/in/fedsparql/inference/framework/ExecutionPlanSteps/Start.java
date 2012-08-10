@@ -6,22 +6,29 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
 
 /**
  * Execution Start Point.
- * Starts execution in a separate Thread.
+ * The calling Thread will get blocked until the Execution finished.
  */
 public class Start extends ExecutionStep {
 
-	public Start(Object ID) {
-		super(ID);
-	}
-
-
+	/* public member */
 	/**
 	 * next step
 	 */
 	public ExecutionStep next = null;
 
+
+	/* constructors */
 	/**
-	 * start execution
+	 * @param ID this step's ID
+	 */
+	public Start(Object ID) {
+		super(ID);
+	}
+
+
+	/* overridden methods */
+	/**
+	 * start execution in separate thread + wait for the execution to finish + dispose the scheduler after the execution finished
 	 */
 	@Override
 	public void execute(Scheduler scheduler) throws Exception {
@@ -37,7 +44,6 @@ public class Start extends ExecutionStep {
 			throw thread.exception;
 		}
 	}
-
 
 	/**
 	 * overridden toString()

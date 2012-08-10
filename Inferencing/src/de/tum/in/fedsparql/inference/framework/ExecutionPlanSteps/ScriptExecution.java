@@ -9,22 +9,13 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
  */
 public class ScriptExecution extends ExecutionStep {
 
-	public ScriptExecution(Object ID) {
-		super(ID);
-	}
-	public ScriptExecution(Object ID, Script script, DependencyGraph dependencyGraph) {
-		this(ID);
-		this.script = script;
-		this.dependencyGraph = dependencyGraph;
-	}
-
-
+	/* public member */
 	/**
 	 * Script to execute
 	 */
 	public Script script=null;
 	/**
-	 * ScriptCollection this.script belongs to
+	 * The DependencyGraph this.script belongs to
 	 */
 	public DependencyGraph dependencyGraph=null;
 	/**
@@ -32,6 +23,27 @@ public class ScriptExecution extends ExecutionStep {
 	 */
 	public ExecutionStep next=null;
 
+
+	/* constructors */
+	/**
+	 * @param ID this step's ID
+	 */
+	public ScriptExecution(Object ID) {
+		super(ID);
+	}
+	/**
+	 * @param ID this step's ID
+	 * @param script the Script to execute
+	 * @param dependencyGraph the DependencyGraph the Script belongs to
+	 */
+	public ScriptExecution(Object ID, Script script, DependencyGraph dependencyGraph) {
+		this(ID);
+		this.script = script;
+		this.dependencyGraph = dependencyGraph;
+	}
+
+
+	/* overridden methods */
 	/**
 	 * Execute Script and goto next step
 	 * @throws Exception
@@ -46,7 +58,6 @@ public class ScriptExecution extends ExecutionStep {
 		scheduler.executeInternal(this.script, this.dependencyGraph);
 		this.next.execute(scheduler);
 	}
-
 
 	/**
 	 * overridden toString()

@@ -5,14 +5,20 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
 
 
 /**
- * End point
+ * Execution End point
  */
 public class Finish extends SynchronizationPoint {
 
+	/* constructors */
+	/**
+	 * @param ID this step's ID
+	 */
 	public Finish(Object ID) {
 		super(ID);
 	}
 
+
+	/* overridden methods */
 	/**
 	 * terminate execution
 	 * @throws Exception

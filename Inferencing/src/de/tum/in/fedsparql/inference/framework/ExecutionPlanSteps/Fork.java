@@ -9,21 +9,28 @@ import de.tum.in.fedsparql.inference.framework.ExecutionPlanDispatcher.Scheduler
 
 
 /**
- * Fork, splits execution up into multiple parallel executions.
+ * Execution Fork, splits execution up into multiple parallel executions.
  * Spawns threads for every parallel path.
  */
 public class Fork extends ExecutionStep {
 
-	public Fork(Object ID) {
-		super(ID);
-	}
-
-
+	/* public member */
 	/**
 	 * Next parallel executable steps
 	 */
 	public Set<ExecutionStep> branches=new HashSet<ExecutionStep>();
 
+
+	/* constructors */
+	/**
+	 * @param ID this step's ID
+	 */
+	public Fork(Object ID) {
+		super(ID);
+	}
+
+
+	/* overridden methods */
 	/**
 	 * fork execution
 	 * @throws Exception
@@ -54,7 +61,6 @@ public class Fork extends ExecutionStep {
 			}
 		}
 	}
-
 
 	/**
 	 * overridden toString()

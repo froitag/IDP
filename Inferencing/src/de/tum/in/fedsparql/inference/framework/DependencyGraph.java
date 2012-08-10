@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.io.Database;
 
 /**
  * Manages a collection of de.tum.in.fedsparql.inference.framework.Script.
@@ -21,7 +20,7 @@ public class DependencyGraph {
 	/* constructors */
 	/**
 	 * Constructor.
-	 * Initializes a ScriptCollection with the given Scripts.
+	 * Initializes a DependencyGraph with the given Scripts.
 	 * 
 	 * @param scripts The collection's Scripts.
 	 */
@@ -34,7 +33,7 @@ public class DependencyGraph {
 	}
 	/**
 	 * Constructor.
-	 * Initializes a ScriptCollection with given Scripts and a set of dependencies which shall be ignored.
+	 * Initializes a DependencyGraph with given Scripts and a set of dependencies which shall be ignored.
 	 * 
 	 * @param scripts The collection's Scripts.
 	 * @param manuallyRemovedDependencies Map<Script => Set<Script>>, states that Script is independent from Set<Script>
@@ -49,12 +48,12 @@ public class DependencyGraph {
 	}
 	/**
 	 * Copy Constructor.
-	 * Clones a given ScriptCollection.
+	 * Clones a given DependencyGraph.
 	 * 
-	 * @param scriptCollection
+	 * @param DependencyGraph
 	 */
-	public DependencyGraph(DependencyGraph scriptCollection) {
-		this(scriptCollection.getScripts().toArray(new Script[0]), scriptCollection.getManuallyRemovedDependencies());
+	public DependencyGraph(DependencyGraph DependencyGraph) {
+		this(DependencyGraph.getScripts().toArray(new Script[0]), DependencyGraph.getManuallyRemovedDependencies());
 	}
 
 
@@ -75,8 +74,8 @@ public class DependencyGraph {
 	/**
 	 * returns all databases the scripts read from.
 	 */
-	public Set<Database> getInputDatabases() {
-		Set<Database> ret=new HashSet<Database>();
+	public Set<DatabaseID> getInputDatabases() {
+		Set<DatabaseID> ret=new HashSet<DatabaseID>();
 
 		for (Script script: _scripts) {
 			ret.addAll(script.inputDatabases);
@@ -87,8 +86,8 @@ public class DependencyGraph {
 	/**
 	 * returns all databases the scripts write to.
 	 */
-	public Set<Database> getOutputDatabases() {
-		Set<Database> ret=new HashSet<Database>();
+	public Set<DatabaseID> getOutputDatabases() {
+		Set<DatabaseID> ret=new HashSet<DatabaseID>();
 
 		for (Script script: _scripts) {
 			ret.addAll(script.outputDatabases);
@@ -134,7 +133,7 @@ public class DependencyGraph {
 	}
 
 	/**
-	 * states whether this ScriptCollection contains circular dependencies
+	 * states whether this DependencyGraph contains dependency cycles
 	 * @return
 	 */
 	public boolean containsCycle() {
@@ -229,7 +228,7 @@ public class DependencyGraph {
 
 	/**
 	 * returns all scripts of this collection that do not depend on other scripts (may be used to start processing).
-	 * returns a set of copies that can be manipulated without changing the ScriptCollection itself.
+	 * returns a set of copies that can be manipulated without changing the DependencyGraph itself.
 	 */
 	public Set<Script> getIndependentScripts() {
 		Set<Script> ret = new HashSet<Script>();
@@ -364,6 +363,7 @@ public class DependencyGraph {
 	 * @return this for fluent interface
 	 */
 	public DependencyGraph printScripts() {
+		System.out.println("Scripts:");
 		for (Script script: _scripts) {
 			System.out.println("Script \""+script.id+"\": \t"+script.inputDatabases+"\t->\t"+script.outputDatabases);
 		}
@@ -384,6 +384,7 @@ public class DependencyGraph {
 			r5:[]
 		 */
 
+		System.out.println("Direct Dependencies:");
 		for (Script script: _scriptDependencies.keySet()) {
 			System.out.print(script.id+":");
 			System.out.print(_scriptDependencies.get(script));
@@ -406,6 +407,7 @@ public class DependencyGraph {
 			r5:[]
 		 */
 
+		System.out.println("Inherited Dependencies (incl. direct ones):");
 		for (Script script: _scriptInheritedDependencies.keySet()) {
 			System.out.print(script.id+":");
 			System.out.print(_scriptInheritedDependencies.get(script));
@@ -414,8 +416,36 @@ public class DependencyGraph {
 
 		return this;
 	}
+	/**
+	 * prints all manually removed dependencies
+	 * 
+	 * @return this for fluent interface
+	 */
+	public DependencyGraph printRemovedDependencies() {
+		/**
+			r1:[]
+			r2:[]
+			r3:[]
+			r4:[]
+			r5:[r5]
+		 */
 
+		System.out.println("Manually Removed Dependencies:");
+		for (Script script: _removedDependencies.keySet()) {
+			System.out.print(script.id+":");
+			System.out.print(_removedDependencies.get(script));
+			System.out.println();
+		}
 
+		return this;
+	}
+
+	/**
+	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
+	 */
+	public DependencyGraphPNG generatePNG() {
+		return new DependencyGraphPNG(this);
+	}
 
 	/* protected helper */
 	/**
@@ -432,8 +462,10 @@ public class DependencyGraph {
 		// add it to the hashset
 		_scripts.add(new Script(script));
 
-		// add its output databases to the _outputRelations cache
-		for (Database oDB: script.outputDatabases) {
+		// add its output databases to the _outputRelations cache)
+		for (DatabaseID oDB: script.outputDatabases) {
+			if (oDB.isFresh()) continue; // !!! ignore "fresh" DBs => they must be excluded from dependency calculation
+
 			if (!_outputRelations.containsKey(oDB)) {
 				_outputRelations.put(oDB, new HashSet<Script>());
 			}
@@ -456,22 +488,23 @@ public class DependencyGraph {
 		_scriptInheritedDependenciesVV = new HashMap<Script,Set<Script>>(); // inherited dependencies vice versa (key=script, value=set of scripts that depend on the first script)
 		_containsCycles = false;
 
+		for (Script script: _scripts) {
+			_scriptDependencies.put(script, new HashSet<Script>());
+			_scriptDependenciesVV.put(script, new HashSet<Script>());
+			_scriptInheritedDependencies.put(script, new HashSet<Script>());
+			_scriptInheritedDependenciesVV.put(script, new HashSet<Script>());
+		}
 
 		/** calculate direct dependencies */
 		for (Script script: _scripts) {
 			// add the scripts dependencies to the _scriptDependencies cache
-			_scriptDependencies.put(script, new HashSet<Script>());
-
-			for (Database iDB: script.inputDatabases) {
+			for (DatabaseID iDB: script.inputDatabases) {
 				if (!_outputRelations.containsKey(iDB)) continue;
 
 				for (Script dependency: _outputRelations.get(iDB)) {
 					if (_isManuallyRemovedDependency(script, dependency)) continue; // ignore manually removed dependencies
 
 					_scriptDependencies.get(script).add(dependency);
-					if (!_scriptDependenciesVV.containsKey(dependency)) {
-						_scriptDependenciesVV.put(dependency, new HashSet<Script>());
-					}
 					_scriptDependenciesVV.get(dependency).add(script);
 				}
 			}
@@ -484,10 +517,6 @@ public class DependencyGraph {
 				if (!_scripts.contains(dep)) continue;
 
 				_scriptDependencies.get(script).add(dep);
-
-				if (!_scriptDependenciesVV.containsKey(dep)) {
-					_scriptDependenciesVV.put(dep, new HashSet<Script>());
-				}
 				_scriptDependenciesVV.get(dep).add(script);
 			}
 		}
@@ -498,9 +527,7 @@ public class DependencyGraph {
 		for (Script script: _scripts) {
 			if (processed.contains(script)) continue;
 
-			_scriptInheritedDependencies.put(script, new HashSet<Script>());
-
-			// walk through every available dependency path and check for circles + add dependencies to the cache
+			// walk through every available dependency path and check for cycles + add dependencies to the cache
 			Queue<InheritedDependenciesQueueEntry> queue = new LinkedList<InheritedDependenciesQueueEntry>();
 			queue.add(
 					new InheritedDependenciesQueueEntry(
@@ -519,9 +546,6 @@ public class DependencyGraph {
 					if (_isManuallyRemovedDependency(pathEntry, qScript)) continue; // ignore the manually removed dependencies
 
 					_scriptInheritedDependencies.get(pathEntry).add(qScript);
-					if (!_scriptInheritedDependenciesVV.containsKey(qScript)) {
-						_scriptInheritedDependenciesVV.put(qScript, new HashSet<Script>());
-					}
 					_scriptInheritedDependenciesVV.get(qScript).add(pathEntry);
 				}
 
@@ -529,7 +553,7 @@ public class DependencyGraph {
 				for (Script dependency: _scriptDependencies.get(qScript)) {
 					if (_isManuallyRemovedDependency(qScript,dependency)) continue;
 					if (qPath.contains(dependency)) {
-						//throw new CircularDependencyException("Circular Dependency found! Please remove all cycles..");
+						//throw new DependencyCycleException("Circular Dependency found! Please remove all cycles..");
 						_containsCycles = true;
 						continue;
 					}
@@ -599,7 +623,7 @@ public class DependencyGraph {
 
 	/* cached stuff, generated from _calculateDependencies */
 	/** database<->script relations Map(outputDatabase => Set<Scripts> which write into it) */
-	protected Map<Database,Set<Script>> _outputRelations=new HashMap<Database,Set<Script>>();
+	protected Map<DatabaseID,Set<Script>> _outputRelations=new HashMap<DatabaseID,Set<Script>>();
 	/** script dependencies, Map(Script => Set<Scripts> which the key script directly depends on) */
 	protected Map<Script,Set<Script>> _scriptDependencies;
 	/** script dependencies vice versa, Map(Script => Set<Scripts> which depend on the key script) */
