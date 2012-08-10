@@ -17,7 +17,7 @@ import de.tum.in.fedsparql.inference.framework.exceptions.DependencyCycleExcepti
 /**
  * Creates an ExecutionPlan from a DependencyGraph
  */
-public class ExecutionPlan {
+public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 
 	/**
 	 * Creates an ExecutionPlan.
@@ -33,6 +33,13 @@ public class ExecutionPlan {
 
 	/* public methods */
 	/**
+	 * gets a copy of the underlying DependencyGraph of this ExecutionPlan.
+	 * (changes to this DependencyGraph doesn't affect this ExecutionPlan)
+	 */
+	public DependencyGraph getDependencyGraph() {
+		return new DependencyGraph(_dGraph);
+	}
+	/**
 	 * get steps
 	 */
 	public Set<ExecutionStep> getSteps() {
@@ -44,6 +51,7 @@ public class ExecutionPlan {
 	public Start getStartStep() {
 		return _startStep;
 	}
+
 	/**
 	 * run plan
 	 * @throws Exception
@@ -52,13 +60,6 @@ public class ExecutionPlan {
 		_startStep.execute(dispatcher);
 	}
 
-	/**
-	 * gets a copy of the underlying DependencyGraph of this ExecutionPlan.
-	 * (changes to this DependencyGraph doesn't affect this ExecutionPlan)
-	 */
-	public DependencyGraph getDependencyGraph() {
-		return new DependencyGraph(_dGraph);
-	}
 	/**
 	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
 	 */
@@ -95,9 +96,7 @@ public class ExecutionPlan {
 		// create start step
 		_steps = new HashSet<ExecutionStep>();
 		_startStep = new Start(++stepId);
-		_endStep = new Finish(++stepId);
 		_steps.add(_startStep);
-		_steps.add(_endStep);
 
 		// initialize search, start with scripts that don't depend on any other scripts
 		Set<Script> startScripts = _dGraph.getIndependentScripts();
@@ -139,8 +138,10 @@ public class ExecutionPlan {
 				if (nextScripts.size() == 0) {
 
 					/*** LINK TO FINISH ***/
-					exec.next = _endStep;
-					_endStep.waitFor.add(exec);
+					Finish f = new Finish(++stepId);
+					exec.next = f;
+					f.waitFor.add(exec);
+					_steps.add(f);
 
 				} else if (nextScripts.size() == 1) {
 
@@ -231,5 +232,4 @@ public class ExecutionPlan {
 	protected DependencyGraph _dGraph;
 	protected Set<ExecutionStep> _steps;
 	protected Start _startStep;
-	protected Finish _endStep;
 }

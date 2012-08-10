@@ -53,7 +53,7 @@ public class DatabaseID {
 
 	@Override
 	public int hashCode() {
-		return this.toString().hashCode();
+		return this.getName().hashCode();
 	}
 
 	@Override
@@ -61,11 +61,7 @@ public class DatabaseID {
 		if (obj instanceof DatabaseID) {
 			DatabaseID db = (DatabaseID) obj;
 
-			boolean equal = this.getName() != null ? this.getName().equals(db.getName()) : db.getName() == null;
-			equal = equal && (this.isFresh() == db.isFresh());
-
-
-			return equal;
+			return this.getName() != null ? this.getName().equals(db.getName()) : db.getName() == null;
 		}
 
 		return false;

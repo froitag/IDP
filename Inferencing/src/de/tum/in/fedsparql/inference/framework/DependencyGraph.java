@@ -15,7 +15,7 @@ import java.util.Set;
  * Is immutable after creation (except the manual removal/adding of dependencies).
  * (actual dependency calculation is done in _calculateDependencies() which is called after DependencyGraph creation + each time the graph was manually changed)
  */
-public class DependencyGraph {
+public class DependencyGraph extends de.tum.in.fedsparql.inference.DependencyGraph {
 
 	/* constructors */
 	/**
@@ -306,9 +306,7 @@ public class DependencyGraph {
 		set.add(dependency);
 		deps.put(script, set);
 
-		this.removeDependencies(deps);
-
-		return this;
+		return this.removeDependencies(deps);
 	}
 	/**
 	 * removes the dependencies of the scripts to their regarding set of scripts
@@ -346,12 +344,15 @@ public class DependencyGraph {
 	 */
 	public DependencyGraph removeDependency(Script dependency) {
 		// forward to addDependency(Script,Script) for each script of this collection
-		// TODO: better: form Map and pass to addDependency(Map) => only 1x _calculateDependencies call
+		Set<Script> set = new HashSet<Script>();
+		set.add(dependency);
+
+		Map<Script,Set<Script>> deps = new HashMap<Script,Set<Script>>();
 		for (Script script: _scripts) {
-			this.removeDependency(script, dependency);
+			deps.put(script, set);
 		}
 
-		return this;
+		return this.removeDependencies(deps);
 	}
 
 
@@ -464,8 +465,6 @@ public class DependencyGraph {
 
 		// add its output databases to the _outputRelations cache)
 		for (DatabaseID oDB: script.outputDatabases) {
-			if (oDB.isFresh()) continue; // !!! ignore "fresh" DBs => they must be excluded from dependency calculation
-
 			if (!_outputRelations.containsKey(oDB)) {
 				_outputRelations.put(oDB, new HashSet<Script>());
 			}

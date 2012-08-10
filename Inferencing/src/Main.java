@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +18,8 @@ import de.tum.in.fedsparql.inference.framework.exceptions.DependencyCycleExcepti
 import de.tum.in.fedsparql.inference.io.Node;
 
 
+
+
 public class Main {
 
 	/**
@@ -27,19 +28,19 @@ public class Main {
 	public static void main(String[] args) {
 
 		// set up scripts
+		//		Script r1 = new Script(
+		//				"r1", // script-name
+		//				new DatabaseID[]{new DatabaseID("a")}, // input databases
+		//				new DatabaseID[]{new DatabaseID("b",true)}, // output databases
+		//				".." // script-content
+		//				);
+		//		Script r2 = new Script(
+		//				"r2", // script-name
+		//				new DatabaseID[]{new DatabaseID("b")}, // input databases
+		//				new DatabaseID[]{new DatabaseID("a")}, // output databases
+		//				".." // script-content
+		//				);
 		Script r1 = new Script(
-				"r1", // script-name
-				new DatabaseID[]{new DatabaseID("a")}, // input databases
-				new DatabaseID[]{new DatabaseID("b",true)}, // output databases
-				".." // script-content
-				);
-		Script r2 = new Script(
-				"r2", // script-name
-				new DatabaseID[]{new DatabaseID("b")}, // input databases
-				new DatabaseID[]{new DatabaseID("a")}, // output databases
-				".." // script-content
-				);
-		/*Script r1 = new Script(
 				"r1", // script-name
 				new DatabaseID[]{new DatabaseID("a")}, // input databases
 				new DatabaseID[]{new DatabaseID("b")}, // output databases
@@ -68,16 +69,16 @@ public class Main {
 				new DatabaseID[]{new DatabaseID("e")}, // input databases
 				new DatabaseID[]{new DatabaseID("e")}, // output databases
 				".." // script-content
-				);*/
+				);
 
 
 		// create dependency graph
 		DependencyGraph dGraph = new DependencyGraph(new Script[]{
 				r1,
-				r2/*,
+				r2,
 				r3,
 				r4,
-				r5*/
+				r5
 		});
 		try {
 			dGraph.generatePNG().save(new File("dependencies.png"));
@@ -87,6 +88,11 @@ public class Main {
 
 		// manually remove dependencies (actually done via GUI)
 		dGraph.removeDependency(new Script("r5"), new Script("r5"));
+		try {
+			dGraph.generatePNG().save(new File("dependencies-afterManualRemoval.png"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 
 		// print information about the graph (actually done via GUI)
@@ -104,7 +110,7 @@ public class Main {
 			// create execution plan
 			ExecutionPlan p = new ExecutionPlan(dGraph);
 			try {
-				dGraph.generatePNG().save(new File("dependencies-nocycles.png")); // only reached if !dGraph.containsCycle() (otherwise ExecutionPlan would've thrown an CircularDependencyException)
+				dGraph.generatePNG().save(new File("dependencies-execPlanInput.png")); // only reached if !dGraph.containsCycle() (otherwise ExecutionPlan would've thrown an CircularDependencyException)
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

@@ -141,7 +141,7 @@ public class ExecutionPlanPNG extends APNG {
 		}
 
 		source += "@enduml\n";
-		System.out.println(source);
+		//		System.out.println(source);
 
 
 		// create PNG from `source`-String
