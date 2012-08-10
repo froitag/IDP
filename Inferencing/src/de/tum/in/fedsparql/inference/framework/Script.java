@@ -73,6 +73,14 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 	 * overridden methods
 	 */
 	/**
+	 * The script's ID.
+	 */
+	@Override
+	public String toString() {
+		return this.id;
+	}
+
+	/**
 	 * Two Scripts equal each other if they have the same ID.
 	 */
 	@Override
@@ -82,19 +90,12 @@ public class Script extends de.tum.in.fedsparql.inference.Script {
 		Script script = (Script) obj;
 		return script!=null && (script.id!=null?script.id.equals(this.id):this.id==null);
 	}
+
 	/**
 	 * HashCode of the script's ID.
 	 */
 	@Override
 	public int hashCode() {
 		return this.id!=null ? this.id.hashCode() : 0;
-	}
-
-	/**
-	 * The script's ID.
-	 */
-	@Override
-	public String toString() {
-		return this.id;
 	}
 }

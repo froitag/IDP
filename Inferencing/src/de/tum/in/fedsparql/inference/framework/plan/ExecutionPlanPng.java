@@ -15,8 +15,9 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
-import de.tum.in.fedsparql.inference.framework.APng;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.stuff.APng;
 
 /**
  * generates a PNG-Graph for a given ExecutionPlan
@@ -99,7 +100,7 @@ public class ExecutionPlanPng extends APng {
 			} else if (curStep.step instanceof Finish) {
 
 				for (ExecutionStep previousStep: curStep.previousSteps) {
-					String edge = _stepToName(previousStep) + " -right-> " + _stepToName(curStep.step) + "\n";
+					String edge = _stepToName(previousStep) + " --> " + _stepToName(curStep.step) + "\n";
 					if (!alreadyAdded.contains(edge)) {
 						source += edge;
 						alreadyAdded.add(edge);

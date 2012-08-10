@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.stuff;
 
 import java.io.File;
 import java.io.FileOutputStream;

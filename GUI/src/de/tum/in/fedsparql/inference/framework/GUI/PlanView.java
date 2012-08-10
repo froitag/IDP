@@ -12,8 +12,8 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.framework.plan.ExecutionPlan;
-import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+import de.tum.in.fedsparql.inference.framework.xceptions.ExecutionPlanException;
 
 @SuppressWarnings("serial")
 public class PlanView extends JPanel {
@@ -27,8 +27,7 @@ public class PlanView extends JPanel {
 
 		try {
 			plan = new ExecutionPlan(gui.getDependencyGraph());
-		} catch (DependencyCycleException e) {
-			// TODO Auto-generated catch block
+		} catch (ExecutionPlanException e) {
 			e.printStackTrace();
 		}
 

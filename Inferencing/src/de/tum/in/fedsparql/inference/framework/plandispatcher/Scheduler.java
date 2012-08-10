@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;
 import de.tum.in.fedsparql.inference.io.Monitoring;

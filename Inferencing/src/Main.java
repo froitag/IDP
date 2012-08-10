@@ -1,3 +1,4 @@
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,13 +10,15 @@ import de.tum.in.fedsparql.inference.dummy.DummyIO;
 import de.tum.in.fedsparql.inference.dummy.DummyMonitoring;
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
+import de.tum.in.fedsparql.inference.framework.IntelligentDependencyGraph;
+import de.tum.in.fedsparql.inference.framework.IntelligentDependencyGraph.DependenciesRemovalSuggestion;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
-import de.tum.in.fedsparql.inference.framework.plan.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.DBPriorityScheduler;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
 import de.tum.in.fedsparql.inference.io.Node;
+
 
 
 
@@ -28,18 +31,102 @@ public class Main {
 	public static void main(String[] args) {
 
 		// set up scripts
-		//		Script r1 = new Script(
-		//				"r1", // script-name
-		//				new DatabaseID[]{new DatabaseID("a")}, // input databases
-		//				new DatabaseID[]{new DatabaseID("b",true)}, // output databases
-		//				".." // script-content
-		//				);
-		//		Script r2 = new Script(
-		//				"r2", // script-name
-		//				new DatabaseID[]{new DatabaseID("b")}, // input databases
-		//				new DatabaseID[]{new DatabaseID("a")}, // output databases
-		//				".." // script-content
-		//				);
+
+		// nettes kleines Beispiel
+		Script r1 = new Script( // r1: A -> B,C*
+				"r1",
+				new DatabaseID[]{new DatabaseID("A")},
+				new DatabaseID[]{new DatabaseID("B"),new DatabaseID("C",true)}, // try without the true (without it's: r1: A -> B,C)
+				"..");
+		Script r2 = new Script( // r2: C,D -> A
+				"r2",
+				new DatabaseID[]{new DatabaseID("D"),new DatabaseID("C")},
+				new DatabaseID[]{new DatabaseID("A")},
+				"..");
+		Script r3 = new Script( // r3: B -> D
+				"r3",
+				new DatabaseID[]{new DatabaseID("B")},
+				new DatabaseID[]{new DatabaseID("D")},
+				"..");
+		Script r4 = new Script( // r4: E -> F,G
+				"r4",
+				new DatabaseID[]{new DatabaseID("E")},
+				new DatabaseID[]{new DatabaseID("F"),new DatabaseID("G")},
+				"..");
+		Script r5 = new Script( // r5: F -> H,I
+				"r5",
+				new DatabaseID[]{new DatabaseID("F")},
+				new DatabaseID[]{new DatabaseID("H"),new DatabaseID("I")},
+				"..");
+
+		// create dependency graph
+		IntelligentDependencyGraph dGraph = new IntelligentDependencyGraph(new Script[]{
+				r1,
+				r2,
+				r3,
+				r4,
+				r5,
+		});
+
+		/* // besonders großer Kreis
+		Script r1 = new Script( // r1: A -> B
+				"r1",
+				new DatabaseID[]{new DatabaseID("A")},
+				new DatabaseID[]{new DatabaseID("B")}, // try without the true (without it's: r1: A -> B,C)
+				"..");
+		Script r2 = new Script( // r2: B -> C*
+				"r2",
+				new DatabaseID[]{new DatabaseID("B")},
+				new DatabaseID[]{new DatabaseID("C",true)},
+				"..");
+		Script r3 = new Script( // r3: C -> D*
+				"r3",
+				new DatabaseID[]{new DatabaseID("C")},
+				new DatabaseID[]{new DatabaseID("D",true)},
+				"..");
+		Script r4 = new Script( // r4: D,F -> A*,E*
+				"r4",
+				new DatabaseID[]{new DatabaseID("D"),new DatabaseID("F")},
+				new DatabaseID[]{new DatabaseID("A",true),new DatabaseID("E",true)},
+				"..");
+		Script r5 = new Script( // r5: E -> F
+				"r5",
+				new DatabaseID[]{new DatabaseID("E")},
+				new DatabaseID[]{new DatabaseID("F")},
+				"..");
+
+		// create dependency graph
+		IntelligentDependencyGraph dGraph = new IntelligentDependencyGraph(new Script[]{
+				r1,
+				r2,
+				r3,
+				r4,
+				r5,
+		});
+		 */
+
+		/* // mini Beispiel vom letzten Treffen
+		Script r1 = new Script( // r1: a -> b*
+				"r1", // script-name
+				new DatabaseID[]{new DatabaseID("a")}, // input databases
+				new DatabaseID[]{new DatabaseID("b",true)}, // output databases
+				".." // script-content
+				);
+		Script r2 = new Script( // r2: b -> a
+				"r2", // script-name
+				new DatabaseID[]{new DatabaseID("b")}, // input databases
+				new DatabaseID[]{new DatabaseID("a")}, // output databases
+				".." // script-content
+				);
+
+		// create dependency graph
+		IntelligentDependencyGraph dGraph = new IntelligentDependencyGraph(new Script[]{
+				r1,
+				r2
+		});
+		 */
+
+		/*
 		Script r1 = new Script(
 				"r1", // script-name
 				new DatabaseID[]{new DatabaseID("a")}, // input databases
@@ -54,7 +141,7 @@ public class Main {
 				);
 		Script r3 = new Script(
 				"r3", // script-name
-				new DatabaseID[]{new DatabaseID("a")}, // input databases
+				new DatabaseID[]{new DatabaseID("b")}, // input databases
 				new DatabaseID[]{new DatabaseID("d")}, // output databases
 				".." // script-content
 				);
@@ -70,26 +157,43 @@ public class Main {
 				new DatabaseID[]{new DatabaseID("e")}, // output databases
 				".." // script-content
 				);
-
-
-		// create dependency graph
-		DependencyGraph dGraph = new DependencyGraph(new Script[]{
+		Script r6 = new Script(
+				"r6", // script-name
+				new DatabaseID[]{new DatabaseID("e"),new DatabaseID("b")}, // input databases
+				new DatabaseID[]{new DatabaseID("f")}, // output databases
+				".." // script-content
+				);
+		IntelligentDependencyGraph dGraph = new IntelligentDependencyGraph(new Script[]{
 				r1,
 				r2,
 				r3,
 				r4,
-				r5
+				r5,
+				r6
 		});
+		 */
+
+
 		try {
+			new File("dependencies.png").delete();
+			new File("dependencies-afterDepRemoval.png").delete();
+			new File("dependencies-execPlanInput.png").delete();
+			new File("plan.png").delete();
 			dGraph.generatePNG().save(new File("dependencies.png"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
-		// manually remove dependencies (actually done via GUI)
-		dGraph.removeDependency(new Script("r5"), new Script("r5"));
+
+		// let the IntelligentDependencyGraph suggest some dependency removals..
+		DependenciesRemovalSuggestion depRemSuggestion = dGraph.suggestDependenciesToRemove();
+		dGraph.removeDependencies(depRemSuggestion);
+
+
+		// manually remove additional dependencies (actually done via GUI)
+		//		dGraph.removeDependency(r5, r5);
 		try {
-			dGraph.generatePNG().save(new File("dependencies-afterManualRemoval.png"));
+			dGraph.generatePNG().save(new File("dependencies-afterDepRemoval.png"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -98,6 +202,7 @@ public class Main {
 		// print information about the graph (actually done via GUI)
 		dGraph.printScripts();
 		System.out.println();
+		System.out.println();
 		dGraph.printDirectDependencies();
 		System.out.println();
 		dGraph.printInheritedDependencies();
@@ -105,12 +210,14 @@ public class Main {
 		dGraph.printRemovedDependencies();
 		System.out.println();
 		System.out.println();
+		System.out.println("-SUGGESTIONS-");
+		depRemSuggestion.print();
 
 		try {
 			// create execution plan
 			ExecutionPlan p = new ExecutionPlan(dGraph);
 			try {
-				dGraph.generatePNG().save(new File("dependencies-execPlanInput.png")); // only reached if !dGraph.containsCycle() (otherwise ExecutionPlan would've thrown an CircularDependencyException)
+				dGraph.generatePNG().save(new File("dependencies-execPlanInput.png")); // only reached if ExecutionPlan was successfully generated
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -122,19 +229,10 @@ public class Main {
 
 
 			System.out.println("Dependency-Graph: dependencies.png");
-			System.out.println("Dependency-Graph (cycle-free): dependencies-nocycle.png");
+			System.out.println("Dependency-Graph (after automatic / manual dependency removal): dependencies-aferDepRemoval.png");
 			System.out.println("Execution-Plan: plan.png");
 			System.out.println();
 			System.out.println();
-
-
-			//			System.out.println("EXECUTION PLAN:");
-			//			for (ExecutionStep step: p.getSteps()) {
-			//				System.out.println(step);
-			//			}
-			//			System.out.println();
-			//			System.out.println();
-
 
 
 			// set up execution environment

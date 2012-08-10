@@ -3,8 +3,8 @@ package de.tum.in.fedsparql.inference.framework.plandispatcher;
 import java.util.List;
 
 import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Database;
 import de.tum.in.fedsparql.inference.io.Dispatcher;
 import de.tum.in.fedsparql.inference.io.IO;

@@ -24,8 +24,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
-import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -122,7 +122,7 @@ public class GraphView extends JPanel {
 				g.addEdge(new EdgeClass(vertex1, vertex2), vertex1, vertex2, EdgeType.DIRECTED);
 			}
 		}
-		Map<Script,Set<Script>> manuallyRemovedDependencies = scripts.getManuallyRemovedDependencies();
+		Map<Script,Set<Script>> manuallyRemovedDependencies = scripts.getRemovedDependencies();
 		for (Script vertex1 : manuallyRemovedDependencies.keySet()) {
 			for (Script vertex2 : manuallyRemovedDependencies.get(vertex1)) {
 				g.addEdge(new EdgeClass(vertex1, vertex2, true), vertex1, vertex2, EdgeType.DIRECTED);
