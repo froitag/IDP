@@ -126,7 +126,7 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 					step = _createSynchPoint(step);
 				}
 				for (Script dependency: _dGraph.getDirectDependencies(script)) {
-					_connect(step, _scriptExecutions.get(dependency));
+					_connect(step, _scriptExecutions.get(dependency), topologicalSortedSets.get(i));
 				}
 			}
 		}
@@ -142,9 +142,15 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 		_createFinish(finalScripts);
 	}
 
-	protected void _connect(ExecutionStep step, ScriptExecution depSe) throws ExecutionPlanException {
+	protected void _connect(ExecutionStep step, ScriptExecution depSe, Set<Object> curScriptSiblings) throws ExecutionPlanException {
 		if (depSe == null) return;
 
+		// ABORT IF: depSe is already connected to a Script from an older generation!
+		if (!curScriptSiblings.containsAll(_getNextScripts(depSe))) {
+			return;
+		}
+
+		/*** connect ***/
 		// add depSe to the SynchronizationPoint if the current step is one
 		if (step instanceof SynchronizationPoint) {
 			((SynchronizationPoint) step).waitFor.add(depSe);
@@ -221,6 +227,38 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 		_steps.add(synchPoint);
 
 		return synchPoint;
+	}
+	protected Set<Script> _getNextScripts(ExecutionStep step) {
+		Set<Script> nextScripts = new HashSet<Script>();
+
+		Set<ExecutionStep> nextSteps = _getNextSteps(step);
+		for (ExecutionStep nextStep: nextSteps) {
+			if (nextStep instanceof ScriptExecution) {
+				nextScripts.add(((ScriptExecution) nextStep).script);
+			} else {
+				nextScripts.addAll(_getNextScripts(nextStep));
+			}
+		}
+
+
+		return nextScripts;
+	}
+	protected Set<ExecutionStep> _getNextSteps(ExecutionStep step) {
+		Set<ExecutionStep> next=new HashSet<ExecutionStep>();
+
+		if (step instanceof Start && ((Start) step).next!=null) {
+			next.add(((Start) step).next);
+		} else if (step instanceof ScriptExecution && ((ScriptExecution) step).next!=null) {
+			next.add(((ScriptExecution) step).next);
+		} else if (step instanceof SynchronizationPoint && ((SynchronizationPoint)step).next!=null) {
+			next.add(((SynchronizationPoint)step).next);
+		} else if (step instanceof Fork) {
+			next.addAll(((Fork) step).branches);
+		} else if (step instanceof Finish) {
+
+		}
+
+		return next;
 	}
 
 

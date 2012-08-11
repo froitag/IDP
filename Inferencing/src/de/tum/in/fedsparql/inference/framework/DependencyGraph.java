@@ -446,11 +446,19 @@ public class DependencyGraph extends DirectedGraph<Script> {
 				for (Script dependency: _outputRelations.get(iDB)) {
 					if (_isManuallyRemovedDependency(script, dependency)) continue; // ignore manually removed dependencies
 
+					String dbString=iDB.toString();
+					for (DatabaseID db: dependency.outputDatabases) {
+						if (db.equals(iDB)) {
+							dbString = db.toString();// get the String from the dependency's output DBs as it may be a "fresh" db -> annotated with a *
+							break;
+						}
+					}
+
 					Edge edge = this.getEdge(script, dependency);
 					if (edge == null) {
-						_addEdge(script, dependency, iDB.toString());
+						_addEdge(script, dependency, dbString);
 					} else {
-						edge.annotation = edge.annotation.toString().equals("") ? iDB.toString() : edge.annotation.toString() + "," + iDB.toString();
+						edge.annotation = edge.annotation.toString().equals("") ? dbString : edge.annotation.toString() + "," + dbString;
 					}
 				}
 			}
@@ -460,11 +468,13 @@ public class DependencyGraph extends DirectedGraph<Script> {
 				for (Script dependent: _inputRelations.get(oDB)) {
 					if (_isManuallyRemovedDependency(dependent, script)) continue; // ignore manually removed dependencies
 
+					String dbString = oDB.toString();
+
 					Edge edge = this.getEdge(dependent, script);
 					if (edge == null) {
-						_addEdge(dependent, script, oDB.toString());
+						_addEdge(dependent, script, dbString);
 					} else {
-						edge.annotation = edge.annotation.toString().equals("") ? oDB.toString() : edge.annotation.toString() + "," + oDB.toString();
+						edge.annotation = edge.annotation.toString().equals("") ? dbString : edge.annotation.toString() + "," + dbString;
 					}
 				}
 			}

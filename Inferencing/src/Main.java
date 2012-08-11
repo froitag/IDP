@@ -68,7 +68,7 @@ public class Main {
 				r5,
 		});
 
-		/* // besonders großer Kreis
+		/*// besonders großer Kreis
 		Script r1 = new Script( // r1: A -> B
 				"r1",
 				new DatabaseID[]{new DatabaseID("A")},
@@ -105,7 +105,7 @@ public class Main {
 		});
 		 */
 
-		/* // mini Beispiel vom letzten Treffen
+		/*// mini Beispiel vom letzten Treffen
 		Script r1 = new Script( // r1: a -> b*
 				"r1", // script-name
 				new DatabaseID[]{new DatabaseID("a")}, // input databases
@@ -173,12 +173,14 @@ public class Main {
 		});
 		 */
 
+		// some cleaning up
+		new File("dependencies.png").delete();
+		new File("dependencies-afterDepRemoval.png").delete();
+		new File("dependencies-execPlanInput.png").delete();
+		new File("plan.png").delete();
+
 
 		try {
-			new File("dependencies.png").delete();
-			new File("dependencies-afterDepRemoval.png").delete();
-			new File("dependencies-execPlanInput.png").delete();
-			new File("plan.png").delete();
 			dGraph.generatePNG().save(new File("dependencies.png"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -217,14 +219,9 @@ public class Main {
 			// create execution plan
 			ExecutionPlan p = new ExecutionPlan(dGraph);
 			try {
-				dGraph.generatePNG().save(new File("dependencies-execPlanInput.png")); // only reached if ExecutionPlan was successfully generated
+				p.generatePNG().save(new File("plan.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
-			}
-			try {
-				p.generatePNG().save(new File("plan.png"));
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 
 
