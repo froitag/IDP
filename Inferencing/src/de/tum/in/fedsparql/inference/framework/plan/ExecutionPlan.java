@@ -69,6 +69,13 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	}
 
 	/**
+	 * @return true if all scripts were processed
+	 */
+	public boolean isFinished() {
+		return _finishedScripts.size() == _dGraph.size();
+	}
+
+	/**
 	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
 	 */
 	public ExecutionPlanPng generatePNG() {

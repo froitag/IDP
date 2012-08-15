@@ -320,6 +320,13 @@ public class DependencyGraph extends DirectedGraph<Script> {
 	}
 
 	/**
+	 * @return the count of vertices
+	 */
+	public int size() {
+		return _vertices.size();
+	}
+
+	/**
 	 * generates a PNG-UML-Graph using PlantUML+GraphVIZ
 	 */
 	@Override
