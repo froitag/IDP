@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.algorithms.TopologicalSorting;
+import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
 import de.tum.in.fedsparql.inference.framework.xceptions.ExecutionPlanException;

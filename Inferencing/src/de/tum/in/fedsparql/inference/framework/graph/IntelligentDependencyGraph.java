@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.graph.DirectedGraph;
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.Script;
 
 /**
  * DependencyGraph Derivation that comes up with some Intelligence.

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import de.tum.in.fedsparql.inference.framework.graph.DirectedGraph;
-import de.tum.in.fedsparql.inference.framework.graph.DirectedGraphPng;
+import de.tum.in.fedsparql.inference.framework.DatabaseID;
+import de.tum.in.fedsparql.inference.framework.Script;
 
 /**
  * Represents a DependencyGraph for a a collection of Scripts.
