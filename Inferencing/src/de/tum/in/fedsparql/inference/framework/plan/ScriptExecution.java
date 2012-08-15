@@ -28,16 +28,17 @@ public class ScriptExecution extends ExecutionStep {
 	/**
 	 * @param ID this step's ID
 	 */
-	public ScriptExecution(Object ID) {
+	public ScriptExecution(Object ID, ExecutionPlan plan) {
 		super(ID);
+		_plan = plan;
 	}
 	/**
 	 * @param ID this step's ID
 	 * @param script the Script to execute
 	 * @param dependencyGraph the DependencyGraph the Script belongs to
 	 */
-	public ScriptExecution(Object ID, Script script, DependencyGraph dependencyGraph) {
-		this(ID);
+	public ScriptExecution(Object ID, ExecutionPlan plan, Script script, DependencyGraph dependencyGraph) {
+		this(ID, plan);
 		this.script = script;
 		this.dependencyGraph = dependencyGraph;
 	}
@@ -56,6 +57,7 @@ public class ScriptExecution extends ExecutionStep {
 		}
 
 		scheduler.executeInternal(this.script, this.dependencyGraph);
+		_plan._markFinished(this.script);
 		this.next.execute(scheduler);
 	}
 
@@ -68,4 +70,8 @@ public class ScriptExecution extends ExecutionStep {
 		str += " " + this.script + "; -> " + (this.next!=null?this.next.getID():"NULL");
 		return str;
 	}
+
+
+	/* protected member */
+	ExecutionPlan _plan=null;
 }

@@ -1,4 +1,4 @@
-package de.tum.in.fedsparql.inference.framework;
+package de.tum.in.fedsparql.inference.framework.plan;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,14 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.algorithms.TopologicalSorting;
-import de.tum.in.fedsparql.inference.framework.plan.ExecutionPlanPng;
-import de.tum.in.fedsparql.inference.framework.plan.ExecutionStep;
-import de.tum.in.fedsparql.inference.framework.plan.Finish;
-import de.tum.in.fedsparql.inference.framework.plan.Fork;
-import de.tum.in.fedsparql.inference.framework.plan.ScriptExecution;
-import de.tum.in.fedsparql.inference.framework.plan.Start;
-import de.tum.in.fedsparql.inference.framework.plan.SynchronizationPoint;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
 import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
 import de.tum.in.fedsparql.inference.framework.xceptions.ExecutionPlanException;
@@ -33,6 +28,7 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	public ExecutionPlan(DependencyGraph dGraph) throws ExecutionPlanException {
 		_dGraph = new DependencyGraph(dGraph);
 		_steps = new ArrayList<ExecutionStep>();
+		_finishedScripts = new HashSet<Script>();
 		_genPlan();
 	}
 
@@ -57,6 +53,12 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	public Start getStartStep() {
 		return _startStep;
 	}
+	/**
+	 * gets a set of the scripts which were already processed
+	 */
+	public Set<Script> getFinishedScripts() {
+		return new HashSet<Script>(_finishedScripts);
+	}
 
 	/**
 	 * run plan
@@ -71,6 +73,19 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	 */
 	public ExecutionPlanPng generatePNG() {
 		return new ExecutionPlanPng(this);
+	}
+
+
+	/* package-wide methods */
+	/**
+	 * marks a script as processed
+	 * 
+	 * @param script Script that was processed
+	 * @return this for fluent interface
+	 */
+	ExecutionPlan _markFinished(Script script) {
+		_finishedScripts.add(script);
+		return this;
 	}
 
 
@@ -207,7 +222,7 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 		return finish;
 	}
 	protected ScriptExecution _createScriptExecution(Script script) {
-		ScriptExecution se = new ScriptExecution(_steps.size(), script, _dGraph);
+		ScriptExecution se = new ScriptExecution(_steps.size(), this, script, _dGraph);
 		_scriptExecutions.put(script, se);
 		_steps.add(se);
 
@@ -266,6 +281,7 @@ public class ExecutionPlan extends de.tum.in.fedsparql.inference.ExecutionPlan {
 	protected DependencyGraph _dGraph;
 	protected ArrayList<ExecutionStep> _steps;
 	protected Start _startStep;
+	protected Set<Script> _finishedScripts;
 
 	Map<Script,ScriptExecution> _scriptExecutions = new HashMap<Script,ScriptExecution>();
 }

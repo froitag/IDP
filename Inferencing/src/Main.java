@@ -10,15 +10,14 @@ import de.tum.in.fedsparql.inference.dummy.DummyIO;
 import de.tum.in.fedsparql.inference.dummy.DummyMonitoring;
 import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
 import de.tum.in.fedsparql.inference.framework.DatabaseID;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.IntelligentDependencyGraph;
 import de.tum.in.fedsparql.inference.framework.IntelligentDependencyGraph.DependenciesRemovalSuggestion;
 import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.plan.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.DBPriorityScheduler;
 import de.tum.in.fedsparql.inference.framework.plandispatcher.Scheduler;
-import de.tum.in.fedsparql.inference.framework.xceptions.DependencyCycleException;
+import de.tum.in.fedsparql.inference.framework.xceptions.ExecutionPlanException;
 import de.tum.in.fedsparql.inference.io.Node;
-
 
 
 
@@ -259,7 +258,8 @@ public class Main {
 			System.out.println("-FINISHED EXECUTION-");
 
 			System.out.println("\nCongratulations, you are done!");
-		} catch (DependencyCycleException e) {
+		} catch (ExecutionPlanException e) {
+			System.out.println("!!! couldn't create ExecutionPlan !!!");
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();

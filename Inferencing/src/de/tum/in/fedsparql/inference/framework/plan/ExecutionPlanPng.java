@@ -15,7 +15,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.sourceforge.plantuml.SourceStringReader;
-import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.Script;
 import de.tum.in.fedsparql.inference.framework.stuff.APng;
 
