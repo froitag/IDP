@@ -77,7 +77,7 @@ public class ExecutionPlanPng extends APng {
 		// create graph
 		// annotate scripts with in+out DBs
 		for (Script script: _plantIDs.keySet()) {
-			source += "state \""+script.id+"\" as "+_plantIDs.get(script)+"\n";
+			source += "state \""+script.id+"\" as " + _plantIDs.get(script) + (plan.getFinishedScripts().contains(script)?" #1EFF00":"") + "\n";
 			source += _plantIDs.get(script)+" : in = " + script.inputDatabases + "\n";
 			source += _plantIDs.get(script)+" : out = " + script.outputDatabases + "\n";
 		}
