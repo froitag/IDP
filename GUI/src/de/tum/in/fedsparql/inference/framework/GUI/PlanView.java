@@ -12,7 +12,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.framework.plan.ExecutionPlan;
+import de.tum.in.fedsparql.inference.framework.ExecutionPlan;
 import de.tum.in.fedsparql.inference.framework.xceptions.ExecutionPlanException;
 
 @SuppressWarnings("serial")

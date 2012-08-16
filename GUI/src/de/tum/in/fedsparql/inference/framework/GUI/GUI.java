@@ -23,7 +23,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.framework.graph.DependencyGraph;
+import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.io.Database;
 
 public class GUI {
