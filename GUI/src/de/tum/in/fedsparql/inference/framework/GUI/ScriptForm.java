@@ -127,23 +127,29 @@ public class ScriptForm extends JPanel {
 		outputTable.setBackground(UIManager.getColor("Button.background"));
 		outputTable.setShowGrid(false);
 		outputTable.setRowSelectionAllowed(false);
-		Object[][] objectArray2 = new Object[gui.getDatabaseList().size()][2];
+		Object[][] objectArray2 = new Object[gui.getDatabaseList().size()][3];
 		for (int i = 0; i < gui.getDatabaseList().size(); i++) {
 			boolean bool = false;
+			boolean freshDB = false;
 			if (script.outputDatabases != null) {
 				if (script.outputDatabases.contains(gui.getDatabaseList().get(i))) {
 					bool = true;
+					for (DatabaseID db: script.outputDatabases) {
+						if (db.equals(gui.getDatabaseList().get(i))) {
+							freshDB = db.isFresh();
+						}
+					}
 				}
 			}
-			objectArray2[i] = new Object[] {bool, gui.getDatabaseList().get(i).getName()};
+			objectArray2[i] = new Object[] {bool, freshDB, gui.getDatabaseList().get(i).getName()};
 		}
-		outputTable.setModel(new DefaultTableModel(objectArray2, new String[] {"", "Output Databases"}) {
+		outputTable.setModel(new DefaultTableModel(objectArray2, new String[] {"", "*", "Output Databases"}) {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = -6300798795385609709L;
 			Class<?>[] columnTypes = new Class[] {
-					Boolean.class, Object.class
+					Boolean.class, Boolean.class, Object.class
 			};
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
@@ -154,7 +160,11 @@ public class ScriptForm extends JPanel {
 		outputTable.getColumnModel().getColumn(0).setPreferredWidth(20);
 		outputTable.getColumnModel().getColumn(0).setMinWidth(20);
 		outputTable.getColumnModel().getColumn(0).setMaxWidth(20);
-		outputTable.getColumnModel().getColumn(1).setMinWidth(75);
+		outputTable.getColumnModel().getColumn(1).setResizable(false);
+		outputTable.getColumnModel().getColumn(1).setPreferredWidth(20);
+		outputTable.getColumnModel().getColumn(1).setMinWidth(20);
+		outputTable.getColumnModel().getColumn(1).setMaxWidth(20);
+		outputTable.getColumnModel().getColumn(2).setMinWidth(75);
 		scrollPane_1.setViewportView(outputTable);
 
 		JLabel lblNewLabel = new JLabel("Script code:");
@@ -204,7 +214,12 @@ public class ScriptForm extends JPanel {
 		HashSet<DatabaseID> set = new HashSet<DatabaseID>();
 		for (int i = 0; i < model.getRowCount() - 1; i++) {
 			if ((boolean)model.getValueAt(i, 0)) {
-				set.add(new DatabaseID(((String)model.getValueAt(i, 1))));
+				if (model.getColumnCount() > 2) { // if 2 columns -> input DB, if 3 columns -> output DB
+					System.out.println((boolean)model.getValueAt(i, 1));
+					set.add(new DatabaseID(((String)model.getValueAt(i, 2)), (boolean)model.getValueAt(i, 1)));
+				} else {
+					set.add(new DatabaseID(((String)model.getValueAt(i, 1))));
+				}
 			}
 		}
 		return set;

@@ -5,8 +5,10 @@ import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -23,8 +25,12 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
+import de.tum.in.fedsparql.inference.dummy.DummyDatabase;
+import de.tum.in.fedsparql.inference.dummy.DummyIO;
+import de.tum.in.fedsparql.inference.dummy.JenaDatabase;
+import de.tum.in.fedsparql.inference.framework.graph.IntelligentDependencyGraph;
 import de.tum.in.fedsparql.inference.io.Database;
+import de.tum.in.fedsparql.inference.io.Node;
 
 public class GUI {
 
@@ -34,7 +40,8 @@ public class GUI {
 	private JList<String> list;
 	private ArrayList<ScriptForm> scriptFormList = new ArrayList<ScriptForm>();
 	private static ArrayList<Database> databaseList = new ArrayList<Database>();
-	private DependencyGraph DependencyGraph;
+	private static DummyIO io;
+	private IntelligentDependencyGraph DependencyGraph;
 	private HashSet<EdgeClass> deletedEdges = new HashSet<EdgeClass>();
 
 	JButton btnShowGraph;
@@ -44,12 +51,37 @@ public class GUI {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		databaseList.add(new TestDatabase("a"));
+		// set up execution environment
+		List<Node> nodes = new ArrayList<Node>();
+		nodes.add(new Node("Node1", "localhost", 2221));
+		nodes.add(new Node("Node2", "localhost", 2222));
+		nodes.add(new Node("Node3", "localhost", 2223));
+
+		io = new DummyIO(nodes);
+		try {
+			io.register(io.getNodeByName("Node1"), new DummyDatabase("Test1", "database/test.nt"));
+			io.register(io.getNodeByName("Node1"), new DummyDatabase("Test2", "database/test.nt"));
+			io.register(io.getNodeByName("Node2"), new DummyDatabase("Test3", "database/test.nt"));
+			io.register(io.getNodeByName("Node2"), new DummyDatabase("Test4", "database/test.nt"));
+			io.register(io.getNodeByName("Node3"), new DummyDatabase("Test5", "database/test.nt"));
+		} catch (FileNotFoundException e) {
+			System.err.println("Couldn't create Databases");
+			e.printStackTrace();
+		}
+
+		io.register(io.getNodeByName("Node1"), new JenaDatabase("a"));
+		io.register(io.getNodeByName("Node1"), new JenaDatabase("b"));
+		io.register(io.getNodeByName("Node2"), new JenaDatabase("c"));
+		io.register(io.getNodeByName("Node2"), new JenaDatabase("d"));
+		io.register(io.getNodeByName("Node3"), new JenaDatabase("e"));
+
+		databaseList.addAll(io.getDatabases());
+		/*		databaseList.add(new TestDatabase("a"));
 		databaseList.add(new TestDatabase("b"));
 		databaseList.add(new TestDatabase("c"));
 		databaseList.add(new TestDatabase("d"));
 		databaseList.add(new TestDatabase("e"));
-		databaseList.add(new TestDatabase("f"));
+		databaseList.add(new TestDatabase("f"));*/
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -192,6 +224,9 @@ public class GUI {
 		}
 	}
 
+	public static DummyIO getIO() {
+		return io;
+	}
 	public JLayeredPane getLayeredPane() {
 		return layeredPane;
 	}
@@ -208,11 +243,11 @@ public class GUI {
 		return databaseList;
 	}
 
-	public DependencyGraph getDependencyGraph() {
+	public IntelligentDependencyGraph getDependencyGraph() {
 		return DependencyGraph;
 	}
 
-	public void setDependencyGraph(DependencyGraph DependencyGraph) {
+	public void setDependencyGraph(IntelligentDependencyGraph DependencyGraph) {
 		this.DependencyGraph = DependencyGraph;
 	}
 

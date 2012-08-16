@@ -24,8 +24,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import de.tum.in.fedsparql.inference.framework.DatabaseID;
-import de.tum.in.fedsparql.inference.framework.DependencyGraph;
 import de.tum.in.fedsparql.inference.framework.Script;
+import de.tum.in.fedsparql.inference.framework.graph.IntelligentDependencyGraph;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -78,9 +78,11 @@ public class GraphView extends JPanel {
 			}
 			TableModel outputModel = form.getOutputTable().getModel();
 			ArrayList<String> outputList = new ArrayList<String>();
+			ArrayList<Boolean> isFresh = new ArrayList<Boolean>();
 			for (int i = 0; i < outputModel.getRowCount(); i++) {
 				if ((boolean)outputModel.getValueAt(i, 0) == true) {
-					outputList.add((String)outputModel.getValueAt(i, 1));
+					outputList.add((String)outputModel.getValueAt(i, 2));
+					isFresh.add((boolean)outputModel.getValueAt(i,1));
 				}
 			}
 
@@ -91,7 +93,7 @@ public class GraphView extends JPanel {
 			}
 			DatabaseID[] outputArray = new DatabaseID[outputList.size()];
 			for (int i = 0; i < outputList.size(); i++) {
-				outputArray[i] = new DatabaseID(outputList.get(i));
+				outputArray[i] = new DatabaseID(outputList.get(i), isFresh.get(i));
 			}
 			String scriptCode = form.getTextArea().getText();
 
@@ -104,11 +106,15 @@ public class GraphView extends JPanel {
 			scriptArray[i] = scriptList.get(i);
 		}
 
-		DependencyGraph scripts = null;
-		scripts = new DependencyGraph(scriptArray);
+		// create new IntelligentDependencyGraph Model
+		IntelligentDependencyGraph scripts = null;
+		scripts = new IntelligentDependencyGraph(scriptArray);
+		// remove edges the user has manually deleted
 		for (EdgeClass edge : gui.getDeletedEdges()) {
 			scripts.removeDependency(edge.vertex1, edge.vertex2);
 		}
+		// remove edges the IntelligentDependencyGraph itself suggests to delete
+		scripts.removeDependencies(scripts.suggestDependenciesToRemove());
 		gui.setDependencyGraph(scripts);
 
 		g = new SparseMultigraph<Script, EdgeClass>();
